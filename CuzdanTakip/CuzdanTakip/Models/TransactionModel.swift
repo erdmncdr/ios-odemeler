@@ -72,6 +72,7 @@ struct Transaction: Identifiable, Codable, Equatable {
     var note: String
     var isPaid: Bool
     var dueDate: Date?
+    var customCategoryId: UUID? // Özel kategori kullanılıyorsa
 
     init(
         id: UUID = UUID(),
@@ -82,7 +83,8 @@ struct Transaction: Identifiable, Codable, Equatable {
         date: Date = Date(),
         note: String = "",
         isPaid: Bool = true,
-        dueDate: Date? = nil
+        dueDate: Date? = nil,
+        customCategoryId: UUID? = nil
     ) {
         self.id = id
         self.title = title
@@ -93,6 +95,16 @@ struct Transaction: Identifiable, Codable, Equatable {
         self.note = note
         self.isPaid = isPaid
         self.dueDate = dueDate
+        self.customCategoryId = customCategoryId
+    }
+
+    /// İşlemin gerçek kategori bilgisini döndürür (özel veya varsayılan)
+    func getCategoryItem(customCategories: [CustomCategory]) -> CategoryItem {
+        if let customId = customCategoryId,
+           let customCategory = customCategories.first(where: { $0.id == customId }) {
+            return .custom(customCategory)
+        }
+        return .standard(category)
     }
 }
 

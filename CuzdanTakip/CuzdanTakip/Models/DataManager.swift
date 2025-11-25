@@ -12,11 +12,14 @@ class DataManager: ObservableObject {
     static let shared = DataManager()
 
     @Published var transactions: [Transaction] = []
+    @Published var customCategories: [CustomCategory] = []
 
     private let saveKey = "SavedTransactions"
+    private let customCategoriesKey = "CustomCategories"
 
     init() {
         loadData()
+        loadCustomCategories()
         // Demo data ekle (ilk açılışta)
         if transactions.isEmpty {
             addDemoData()
@@ -224,7 +227,53 @@ class DataManager: ObservableObject {
     }
 
 
-    // Persistence
+    // MARK: - Özel Kategori Yönetimi
+
+    /// Yeni özel kategori ekler
+    func addCustomCategory(_ category: CustomCategory) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            customCategories.append(category)
+        }
+        saveCustomCategories()
+    }
+
+    /// Özel kategoriyi günceller
+    func updateCustomCategory(_ category: CustomCategory) {
+        if let index = customCategories.firstIndex(where: { $0.id == category.id }) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                customCategories[index] = category
+            }
+            saveCustomCategories()
+        }
+    }
+
+    /// Özel kategoriyi siler
+    func deleteCustomCategory(_ category: CustomCategory) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            customCategories.removeAll { $0.id == category.id }
+        }
+
+        // Bu kategoriyi kullanan işlemleri "Diğer" kategorisine çevir
+        for (index, transaction) in transactions.enumerated() {
+            if transaction.customCategoryId == category.id {
+                transactions[index].customCategoryId = nil
+                transactions[index].category = .other
+            }
+        }
+
+        saveCustomCategories()
+        saveData()
+    }
+
+    /// Tüm kategorileri döndürür (varsayılan + özel)
+    func getAllCategories() -> [CategoryItem] {
+        let standardCategories = TransactionCategory.allCases.map { CategoryItem.standard($0) }
+        let customCategoryItems = customCategories.map { CategoryItem.custom($0) }
+        return standardCategories + customCategoryItems
+    }
+
+    // MARK: - Persistence
+
     private func saveData() {
         if let encoded = try? JSONEncoder().encode(transactions) {
             UserDefaults.standard.set(encoded, forKey: saveKey)
@@ -235,6 +284,19 @@ class DataManager: ObservableObject {
         if let data = UserDefaults.standard.data(forKey: saveKey),
            let decoded = try? JSONDecoder().decode([Transaction].self, from: data) {
             transactions = decoded
+        }
+    }
+
+    private func saveCustomCategories() {
+        if let encoded = try? JSONEncoder().encode(customCategories) {
+            UserDefaults.standard.set(encoded, forKey: customCategoriesKey)
+        }
+    }
+
+    private func loadCustomCategories() {
+        if let data = UserDefaults.standard.data(forKey: customCategoriesKey),
+           let decoded = try? JSONDecoder().decode([CustomCategory].self, from: data) {
+            customCategories = decoded
         }
     }
 
