@@ -19,6 +19,7 @@
 		A1000010 /* GlassCardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000010 /* GlassCardView.swift */; };
 		A1000011 /* DataManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000011 /* DataManager.swift */; };
 		A1000012 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000012 /* NotificationManager.swift */; };
+		A1000013 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000013 /* HapticManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -35,6 +36,7 @@
 		A2000010 /* GlassCardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlassCardView.swift; sourceTree = "<group>"; };
 		A2000011 /* DataManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataManager.swift; sourceTree = "<group>"; };
 		A2000012 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; sourceTree = "<group>"; };
+		A2000013 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -111,6 +113,7 @@
 			children = (
 				A2000005 /* ThemeManager.swift */,
 				A2000012 /* NotificationManager.swift */,
+				A2000013 /* HapticManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -196,6 +199,7 @@
 				A1000010 /* GlassCardView.swift in Sources */,
 				A1000011 /* DataManager.swift in Sources */,
 				A1000012 /* NotificationManager.swift in Sources */,
+				A1000013 /* HapticManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
