@@ -1,15 +1,15 @@
 //
-//  FinanceTrackerApp.swift
-//  FinanceTracker
+//  CuzdanTakipApp.swift
+//  CuzdanTakip
 //
-//  Premium Finance Tracking App
+//  Premium Finance Tracking App - Cüzdan Takip v2
 //
 
 import SwiftUI
 import UserNotifications
 
 @main
-struct FinanceTrackerApp: App {
+struct CuzdanTakipApp: App {
     @StateObject private var dataManager = DataManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @State private var showNotificationPermission = false
