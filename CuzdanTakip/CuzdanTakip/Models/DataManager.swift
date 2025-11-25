@@ -130,6 +130,100 @@ class DataManager: ObservableObject {
         }.sorted { $0.date > $1.date }
     }
 
+    // MARK: - Arama ve Filtreleme
+
+    /// Metinde arama yapar
+    func searchTransactions(query: String) -> [Transaction] {
+        guard !query.isEmpty else { return transactions }
+
+        let lowercasedQuery = query.lowercased()
+
+        return transactions.filter { transaction in
+            transaction.title.lowercased().contains(lowercasedQuery) ||
+            transaction.note.lowercased().contains(lowercasedQuery) ||
+            transaction.category.rawValue.lowercased().contains(lowercasedQuery) ||
+            transaction.amount.toCurrency().contains(query)
+        }.sorted { $0.date > $1.date }
+    }
+
+    /// Gelişmiş filtreleme
+    func filterTransactions(
+        searchQuery: String = "",
+        filters: FilterOptions
+    ) -> [Transaction] {
+        var result = transactions
+
+        // Arama
+        if !searchQuery.isEmpty {
+            let lowercasedQuery = searchQuery.lowercased()
+            result = result.filter { transaction in
+                transaction.title.lowercased().contains(lowercasedQuery) ||
+                transaction.note.lowercased().contains(lowercasedQuery) ||
+                transaction.category.rawValue.lowercased().contains(lowercasedQuery)
+            }
+        }
+
+        // Tarih aralığı
+        if let dateRange = filters.dateRange {
+            let interval = dateRange.dateInterval
+            result = result.filter { transaction in
+                interval.contains(transaction.date)
+            }
+        }
+
+        // Kategoriler
+        if !filters.categories.isEmpty {
+            result = result.filter { transaction in
+                filters.categories.contains(transaction.category)
+            }
+        }
+
+        // Türler
+        if !filters.types.isEmpty {
+            result = result.filter { transaction in
+                filters.types.contains(transaction.type)
+            }
+        }
+
+        // Miktar aralığı
+        if let minAmount = filters.minAmount {
+            result = result.filter { $0.amount >= minAmount }
+        }
+
+        if let maxAmount = filters.maxAmount {
+            result = result.filter { $0.amount <= maxAmount }
+        }
+
+        // Ödeme durumu
+        if let isPaid = filters.isPaid {
+            result = result.filter { $0.isPaid == isPaid }
+        }
+
+        return result.sorted { $0.date > $1.date }
+    }
+
+    /// Akıllı öneriler (en çok kullanılan kategoriler vs.)
+    func getMostUsedCategories(limit: Int = 5) -> [TransactionCategory] {
+        let categoryCount = Dictionary(grouping: transactions, by: { $0.category })
+            .mapValues { $0.count }
+            .sorted { $0.value > $1.value }
+
+        return Array(categoryCount.prefix(limit).map { $0.key })
+    }
+
+    /// En yüksek harcama kategorisi
+    func getHighestExpenseCategory() -> (category: TransactionCategory, amount: Double)? {
+        let expenses = transactions.filter { $0.type == .expense }
+        guard !expenses.isEmpty else { return nil }
+
+        let grouped = Dictionary(grouping: expenses, by: { $0.category })
+        let totals = grouped.mapValues { $0.reduce(0) { $0 + $1.amount } }
+        guard let highest = totals.max(by: { $0.value < $1.value }) else { return nil }
+
+        return (highest.key, highest.value)
+    }
+
+
     // Persistence
     private func saveData() {
         if let encoded = try? JSONEncoder().encode(transactions) {
