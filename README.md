@@ -47,7 +47,7 @@ Modern ve şık bir finans takip uygulaması. Liquid glass teması ile premium k
 
 ### Proje Yapısı
 ```
-FinanceTracker/
+CuzdanTakip/
 ├── FinanceTrackerApp.swift          # Ana uygulama dosyası
 ├── ContentView.swift                # Ana görünüm ve tab navigation
 ├── Models/
@@ -75,7 +75,7 @@ FinanceTracker/
 
 ### Simulator'de Çalıştırma
 1. Projeyi klonlayın veya indirin
-2. `FinanceTracker.xcodeproj` dosyasını Xcode ile açın
+2. `CuzdanTakip.xcodeproj` dosyasını Xcode ile açın
 3. Hedef cihazı veya simulatörü seçin
 4. ⌘+R ile projeyi çalıştırın
 
@@ -104,13 +104,13 @@ FinanceTracker/
    ```
 2. Xcode proje dosyasını açın:
    ```bash
-   open FinanceTracker/FinanceTracker.xcodeproj
+   open CuzdanTakip/CuzdanTakip.xcodeproj
    ```
 
 ### Adım 3: Signing & Capabilities Ayarları
 
 #### Otomatik Signing (Önerilen)
-1. Xcode'da sol panelden **FinanceTracker** projesine tıklayın
+1. Xcode'da sol panelden **CuzdanTakip** projesine tıklayın
 2. **TARGETS** altında **FinanceTracker** seçin
 3. **Signing & Capabilities** sekmesine gidin
 4. **Automatically manage signing** kutusunu işaretleyin
