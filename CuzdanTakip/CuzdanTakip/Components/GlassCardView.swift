@@ -11,18 +11,23 @@ import SwiftUI
 struct TransactionCard: View {
     let transaction: Transaction
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var dataManager: DataManager
+
+    private var categoryItem: CategoryItem {
+        transaction.getCategoryItem(customCategories: dataManager.customCategories)
+    }
 
     var body: some View {
         HStack(spacing: 15) {
             // İkon
             ZStack {
                 Circle()
-                    .fill(transaction.category.color.opacity(0.2))
+                    .fill(categoryItem.color.opacity(0.2))
                     .frame(width: 50, height: 50)
 
-                Image(systemName: transaction.category.icon)
+                Image(systemName: categoryItem.icon)
                     .font(.system(size: 22))
-                    .foregroundColor(transaction.category.color)
+                    .foregroundColor(categoryItem.color)
             }
 
             // Bilgiler
@@ -31,7 +36,7 @@ struct TransactionCard: View {
                     .font(Theme.headline)
                     .foregroundColor(.primary)
 
-                Text(transaction.category.rawValue)
+                Text(categoryItem.name)
                     .font(Theme.caption)
                     .foregroundColor(.secondary)
 

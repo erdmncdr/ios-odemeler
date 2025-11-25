@@ -198,6 +198,7 @@ struct AddTransactionView: View {
     @State private var title = ""
     @State private var amount = ""
     @State private var selectedCategory: TransactionCategory = .other
+    @State private var selectedCustomCategoryId: UUID? = nil
     @State private var date = Date()
     @State private var note = ""
     @State private var hasDueDate = false
@@ -215,14 +216,14 @@ struct AddTransactionView: View {
                         TextField("Miktar", text: $amount)
                             .keyboardType(.decimalPad)
 
-                        Picker("Kategori", selection: $selectedCategory) {
-                            ForEach(TransactionCategory.allCases, id: \.self) { category in
-                                Label(category.rawValue, systemImage: category.icon)
-                                    .tag(category)
-                            }
-                        }
-
                         DatePicker("Tarih", selection: $date, displayedComponents: .date)
+                    }
+
+                    Section("Kategori") {
+                        SmartCategoryPicker(
+                            selectedStandardCategory: $selectedCategory,
+                            selectedCustomCategoryId: $selectedCustomCategoryId
+                        )
                     }
 
                     if transactionType == .debt || transactionType == .upcoming {
@@ -278,7 +279,8 @@ struct AddTransactionView: View {
             date: date,
             note: note,
             isPaid: transactionType == .expense || transactionType == .income,
-            dueDate: hasDueDate ? dueDate : nil
+            dueDate: hasDueDate ? dueDate : nil,
+            customCategoryId: selectedCustomCategoryId
         )
 
         dataManager.addTransaction(transaction)

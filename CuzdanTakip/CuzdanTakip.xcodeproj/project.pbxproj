@@ -25,6 +25,7 @@
 		A1000016 /* FilterOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000016 /* FilterOptions.swift */; };
 		A1000017 /* CustomCategory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000017 /* CustomCategory.swift */; };
 		A1000018 /* CategoryManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000018 /* CategoryManagerView.swift */; };
+		A1000019 /* SmartCategoryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000019 /* SmartCategoryPicker.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -47,6 +48,7 @@
 		A2000016 /* FilterOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterOptions.swift; sourceTree = "<group>"; };
 		A2000017 /* CustomCategory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomCategory.swift; sourceTree = "<group>"; };
 		A2000018 /* CategoryManagerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagerView.swift; sourceTree = "<group>"; };
+		A2000019 /* SmartCategoryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCategoryPicker.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +121,7 @@
 				A2000010 /* GlassCardView.swift */,
 				A2000014 /* SearchBar.swift */,
 				A2000015 /* FilterView.swift */,
+				A2000019 /* SmartCategoryPicker.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -220,6 +223,7 @@
 				A1000016 /* FilterOptions.swift in Sources */,
 				A1000017 /* CustomCategory.swift in Sources */,
 				A1000018 /* CategoryManagerView.swift in Sources */,
+				A1000019 /* SmartCategoryPicker.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
