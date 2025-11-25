@@ -29,6 +29,7 @@ class DataManager: ObservableObject {
             transactions.append(transaction)
         }
         saveData()
+        scheduleNotificationsForUpcomingPayments()
     }
 
     func updateTransaction(_ transaction: Transaction) {
@@ -37,6 +38,7 @@ class DataManager: ObservableObject {
                 transactions[index] = transaction
             }
             saveData()
+            scheduleNotificationsForUpcomingPayments()
         }
     }
 
@@ -45,6 +47,19 @@ class DataManager: ObservableObject {
             transactions.removeAll { $0.id == transaction.id }
         }
         saveData()
+        scheduleNotificationsForUpcomingPayments()
+    }
+
+    // Gelecek ödemeler için bildirimleri planla
+    private func scheduleNotificationsForUpcomingPayments() {
+        let upcomingPayments = getUpcomingPayments()
+
+        // Ayrıca ödenmemiş borçları da ekle
+        let unpaidDebts = transactions.filter { ($0.type == .debt || $0.type == .lent) && !$0.isPaid }
+
+        let allPayments = upcomingPayments + unpaidDebts
+
+        NotificationManager.shared.scheduleNotifications(for: allPayments)
     }
 
     func deleteTransaction(at offsets: IndexSet, from list: [Transaction]) {
@@ -90,6 +105,10 @@ class DataManager: ObservableObject {
             .filter { $0.type == .debt && !$0.isPaid }
             .reduce(0) { $0 + $1.amount }
 
+        let lent = transactions
+            .filter { $0.type == .lent && !$0.isPaid }
+            .reduce(0) { $0 + $1.amount }
+
         let upcoming = getUpcomingPayments()
             .reduce(0) { $0 + $1.amount }
 
@@ -97,6 +116,7 @@ class DataManager: ObservableObject {
             totalIncome: income,
             totalExpenses: expenses,
             totalDebts: debts,
+            totalLent: lent,
             upcomingPayments: upcoming
         )
     }
@@ -181,6 +201,29 @@ class DataManager: ObservableObject {
             date: calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
             isPaid: false,
             dueDate: calendar.date(byAdding: .day, value: 10, to: Date())
+        ))
+
+        // Verilen borçlar (Bize borçlu olanlar)
+        transactions.append(Transaction(
+            title: "Mehmet'e Borç Verdim",
+            amount: 1000,
+            type: .lent,
+            category: .other,
+            date: calendar.date(byAdding: .day, value: -12, to: Date()) ?? Date(),
+            note: "Acil ihtiyacı için verdim",
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 18, to: Date())
+        ))
+
+        transactions.append(Transaction(
+            title: "İş Arkadaşına Ödünç",
+            amount: 750,
+            type: .lent,
+            category: .other,
+            date: calendar.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
+            note: "Hafta sonuna kadar geri ödeyecek",
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 2, to: Date())
         ))
 
         // Gelecek ödemeler

@@ -74,7 +74,7 @@ struct ContentView: View {
     }
 }
 
-// Özel Tab Bar
+// Özel Tab Bar - Premium Liquid Glass
 struct CustomTabBar: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(\.colorScheme) var colorScheme
@@ -96,7 +96,48 @@ struct CustomTabBar: View {
         }
         .padding(.horizontal, 8)
         .padding(.vertical, 12)
-        .glassEffect(cornerRadius: 30)
+        .background(
+            ZStack {
+                // Premium liquid glass effect
+                RoundedRectangle(cornerRadius: 30)
+                    .fill(.ultraThinMaterial)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30)
+                            .fill(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .dark ? 0.15 : 0.3),
+                                        Color.white.opacity(colorScheme == .dark ? 0.05 : 0.1)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 30)
+                            .stroke(
+                                LinearGradient(
+                                    colors: [
+                                        Color.white.opacity(colorScheme == .dark ? 0.3 : 0.6),
+                                        Color.white.opacity(colorScheme == .dark ? 0.1 : 0.2)
+                                    ],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                ),
+                                lineWidth: 1.5
+                            )
+                    )
+                    .shadow(
+                        color: colorScheme == .dark
+                            ? Color.black.opacity(0.5)
+                            : Color.black.opacity(0.15),
+                        radius: 20,
+                        x: 0,
+                        y: 10
+                    )
+            }
+        )
     }
 }
 

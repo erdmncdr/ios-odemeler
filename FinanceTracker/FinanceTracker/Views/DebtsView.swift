@@ -2,7 +2,7 @@
 //  DebtsView.swift
 //  FinanceTracker
 //
-//  Borçlar ekranı
+//  Borçlar ekranı - Hem bizim borçlarımız hem de verdiğimiz borçlar
 //
 
 import SwiftUI
@@ -11,8 +11,15 @@ struct DebtsView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddSheet = false
     @State private var selectedTransaction: Transaction?
+    @State private var selectedDebtType: DebtType = .owed
     @Environment(\.colorScheme) var colorScheme
 
+    enum DebtType: String, CaseIterable {
+        case owed = "Bizim Borçlarımız"
+        case lent = "Verilen Borçlar"
+    }
+
+    // Bizim borçlarımız
     private var debts: [Transaction] {
         dataManager.getTransactions(ofType: .debt)
     }
@@ -29,8 +36,21 @@ struct DebtsView: View {
         unpaidDebts.reduce(0) { $0 + $1.amount }
     }
 
-    private var totalPaidDebts: Double {
-        paidDebts.reduce(0) { $0 + $1.amount }
+    // Verilen borçlar
+    private var lentMoney: [Transaction] {
+        dataManager.getTransactions(ofType: .lent)
+    }
+
+    private var unpaidLent: [Transaction] {
+        lentMoney.filter { !$0.isPaid }
+    }
+
+    private var paidLent: [Transaction] {
+        lentMoney.filter { $0.isPaid }
+    }
+
+    private var totalUnpaidLent: Double {
+        unpaidLent.reduce(0) { $0 + $1.amount }
     }
 
     var body: some View {
@@ -44,7 +64,7 @@ struct DebtsView: View {
                                 .font(Theme.largeTitle)
                                 .fontWeight(.bold)
 
-                            Text("Borçlarınızı yönetin")
+                            Text("Borç takibi ve yönetimi")
                                 .font(Theme.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -58,85 +78,58 @@ struct DebtsView: View {
                     .padding(.horizontal)
                     .padding(.top, 20)
 
+                    // Segmented Picker
+                    Picker("Borç Tipi", selection: $selectedDebtType) {
+                        ForEach(DebtType.allCases, id: \.self) { type in
+                            Text(type.rawValue).tag(type)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .padding(.horizontal)
+
                     // Özet kartları
                     HStack(spacing: 15) {
-                        SummaryCard(
-                            title: "Ödenmemiş",
-                            amount: totalUnpaidDebts,
-                            icon: "exclamationmark.triangle.fill",
-                            gradient: LinearGradient(
-                                colors: [.orange, .red],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
+                        if selectedDebtType == .owed {
+                            SummaryCard(
+                                title: "Ödenmemiş",
+                                amount: totalUnpaidDebts,
+                                icon: "exclamationmark.triangle.fill",
+                                gradient: LinearGradient(
+                                    colors: [.orange, .red],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
                             )
-                        )
 
-                        SummaryCard(
-                            title: "Ödendi",
-                            amount: totalPaidDebts,
-                            icon: "checkmark.circle.fill",
-                            gradient: Theme.successGradient
-                        )
+                            SummaryCard(
+                                title: "Toplam Borç",
+                                amount: debts.reduce(0) { $0 + $1.amount },
+                                icon: "creditcard.fill",
+                                gradient: Theme.accentGradient
+                            )
+                        } else {
+                            SummaryCard(
+                                title: "Gelmesi Gereken",
+                                amount: totalUnpaidLent,
+                                icon: "arrow.down.circle.fill",
+                                gradient: Theme.successGradient
+                            )
+
+                            SummaryCard(
+                                title: "Toplam Verilen",
+                                amount: lentMoney.reduce(0) { $0 + $1.amount },
+                                icon: "arrow.up.circle.fill",
+                                gradient: Theme.primaryGradient
+                            )
+                        }
                     }
                     .padding(.horizontal)
 
-                    // Ödenmemiş borçlar
-                    if !unpaidDebts.isEmpty {
-                        VStack(spacing: 12) {
-                            SectionHeader("Ödenmesi Gerekenler", icon: "exclamationmark.circle.fill")
-
-                            ForEach(unpaidDebts) { transaction in
-                                DebtCard(transaction: transaction) {
-                                    markAsPaid(transaction)
-                                }
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    selectedTransaction = transaction
-                                }
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .opacity
-                                ))
-                            }
-                        }
-                    }
-
-                    // Ödenen borçlar
-                    if !paidDebts.isEmpty {
-                        VStack(spacing: 12) {
-                            SectionHeader("Ödenenler", icon: "checkmark.circle")
-
-                            ForEach(paidDebts) { transaction in
-                                TransactionCard(transaction: transaction)
-                                    .padding(.horizontal)
-                                    .opacity(0.7)
-                                    .onTapGesture {
-                                        selectedTransaction = transaction
-                                    }
-                                    .contextMenu {
-                                        Button(role: .destructive) {
-                                            withAnimation {
-                                                dataManager.deleteTransaction(transaction)
-                                            }
-                                        } label: {
-                                            Label("Sil", systemImage: "trash")
-                                        }
-                                    }
-                                    .transition(.asymmetric(
-                                        insertion: .scale.combined(with: .opacity),
-                                        removal: .opacity
-                                    ))
-                            }
-                        }
-                    }
-
-                    if debts.isEmpty {
-                        EmptyStateView(
-                            icon: "checkmark.circle",
-                            title: "Harika! Borcunuz yok",
-                            message: "Finansal durumunuz iyi görünüyor"
-                        )
-                        .padding(.top, 60)
+                    // İçerik
+                    if selectedDebtType == .owed {
+                        debtsList
+                    } else {
+                        lentList
                     }
 
                     Spacer(minLength: 100)
@@ -144,10 +137,139 @@ struct DebtsView: View {
             }
         }
         .sheet(isPresented: $showingAddSheet) {
-            AddTransactionView(transactionType: .debt)
+            DebtSelectionView(selectedType: selectedDebtType)
         }
         .sheet(item: $selectedTransaction) { transaction in
             TransactionDetailView(transaction: transaction)
+        }
+        .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedDebtType)
+    }
+
+    // Bizim borçlarımız listesi
+    private var debtsList: some View {
+        Group {
+            // Ödenmemiş borçlar
+            if !unpaidDebts.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Ödenmesi Gerekenler", icon: "exclamationmark.circle.fill")
+
+                    ForEach(unpaidDebts) { transaction in
+                        DebtCard(transaction: transaction) {
+                            markAsPaid(transaction)
+                        }
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            selectedTransaction = transaction
+                        }
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                }
+            }
+
+            // Ödenen borçlar
+            if !paidDebts.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Ödenenler", icon: "checkmark.circle")
+
+                    ForEach(paidDebts) { transaction in
+                        TransactionCard(transaction: transaction)
+                            .padding(.horizontal)
+                            .opacity(0.7)
+                            .onTapGesture {
+                                selectedTransaction = transaction
+                            }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        dataManager.deleteTransaction(transaction)
+                                    }
+                                } label: {
+                                    Label("Sil", systemImage: "trash")
+                                }
+                            }
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                    }
+                }
+            }
+
+            if debts.isEmpty {
+                EmptyStateView(
+                    icon: "checkmark.circle",
+                    title: "Harika! Borcunuz yok",
+                    message: "Finansal durumunuz iyi görünüyor"
+                )
+                .padding(.top, 60)
+            }
+        }
+    }
+
+    // Verilen borçlar listesi
+    private var lentList: some View {
+        Group {
+            // Geri ödenmemiş
+            if !unpaidLent.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Geri Ödenmesi Gerekenler", icon: "arrow.down.circle.fill")
+
+                    ForEach(unpaidLent) { transaction in
+                        LentCard(transaction: transaction) {
+                            markAsPaid(transaction)
+                        }
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            selectedTransaction = transaction
+                        }
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                }
+            }
+
+            // Geri ödenenler
+            if !paidLent.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Geri Ödenenler", icon: "checkmark.circle")
+
+                    ForEach(paidLent) { transaction in
+                        TransactionCard(transaction: transaction)
+                            .padding(.horizontal)
+                            .opacity(0.7)
+                            .onTapGesture {
+                                selectedTransaction = transaction
+                            }
+                            .contextMenu {
+                                Button(role: .destructive) {
+                                    withAnimation {
+                                        dataManager.deleteTransaction(transaction)
+                                    }
+                                } label: {
+                                    Label("Sil", systemImage: "trash")
+                                }
+                            }
+                            .transition(.asymmetric(
+                                insertion: .scale.combined(with: .opacity),
+                                removal: .opacity
+                            ))
+                    }
+                }
+            }
+
+            if lentMoney.isEmpty {
+                EmptyStateView(
+                    icon: "arrow.up.circle",
+                    title: "Henüz borç vermediniz",
+                    message: "Verdiğiniz borçlar burada görünecek"
+                )
+                .padding(.top, 60)
+            }
         }
     }
 
@@ -155,6 +277,165 @@ struct DebtsView: View {
         var updated = transaction
         updated.isPaid = true
         dataManager.updateTransaction(updated)
+    }
+}
+
+// Borç seçim ekranı
+struct DebtSelectionView: View {
+    @Environment(\.dismiss) var dismiss
+    let selectedType: DebtsView.DebtType
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text("Hangi tip borç eklemek istersiniz?")
+                    .font(Theme.title3)
+                    .multilineTextAlignment(.center)
+                    .padding()
+
+                VStack(spacing: 16) {
+                    NavigationLink(destination: AddTransactionView(transactionType: .debt)) {
+                        DebtTypeCard(
+                            title: "Bizim Borcumuz",
+                            description: "Başkalarına olan borçlarınız",
+                            icon: "creditcard.fill",
+                            gradient: LinearGradient(
+                                colors: [.orange, .red],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    }
+
+                    NavigationLink(destination: AddTransactionView(transactionType: .lent)) {
+                        DebtTypeCard(
+                            title: "Verilen Borç",
+                            description: "Başkalarına verdiğiniz borçlar",
+                            icon: "arrow.up.circle.fill",
+                            gradient: Theme.successGradient
+                        )
+                    }
+                }
+                .padding()
+
+                Spacer()
+            }
+            .navigationTitle("Borç Ekle")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("İptal") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Borç tipi kartı
+struct DebtTypeCard: View {
+    let title: String
+    let description: String
+    let icon: String
+    let gradient: LinearGradient
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(gradient)
+                    .frame(width: 60, height: 60)
+
+                Image(systemName: icon)
+                    .font(.system(size: 26))
+                    .foregroundColor(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(Theme.headline)
+                    .foregroundColor(.primary)
+
+                Text(description)
+                    .font(Theme.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .premiumCard()
+    }
+}
+
+// Verilen borç kartı
+struct LentCard: View {
+    let transaction: Transaction
+    let onMarkPaid: () -> Void
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 15) {
+                // İkon
+                ZStack {
+                    Circle()
+                        .fill(Color.green.opacity(0.2))
+                        .frame(width: 50, height: 50)
+
+                    Image(systemName: "arrow.down.circle.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(.green)
+                }
+
+                // Bilgiler
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(transaction.title)
+                        .font(Theme.headline)
+                        .foregroundColor(.primary)
+
+                    if let dueDate = transaction.dueDate {
+                        Label(dueDate.toRelativeString(), systemImage: "clock.fill")
+                            .font(Theme.caption)
+                            .foregroundColor(.orange)
+                    }
+                }
+
+                Spacer()
+
+                // Miktar
+                Text(transaction.amount.toCurrency())
+                    .font(Theme.headline)
+                    .foregroundColor(.green)
+                    .fontWeight(.bold)
+            }
+            .padding()
+
+            // Ödendi butonu
+            Button(action: onMarkPaid) {
+                HStack {
+                    Image(systemName: "checkmark.circle.fill")
+                        .font(.system(size: 18))
+
+                    Text("Geri Ödendi")
+                        .font(Theme.callout)
+                        .fontWeight(.semibold)
+                }
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Theme.successGradient)
+            }
+        }
+        .premiumCard()
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(Color.green.opacity(0.5), lineWidth: 2)
+        )
     }
 }
 

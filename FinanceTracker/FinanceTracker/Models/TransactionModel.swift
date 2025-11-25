@@ -12,7 +12,8 @@ import SwiftUI
 enum TransactionType: String, Codable, CaseIterable {
     case expense = "Gider"
     case income = "Gelir"
-    case debt = "Borç"
+    case debt = "Borç (Bize)"
+    case lent = "Verilen Borç"
     case upcoming = "Gelecek Ödeme"
 }
 
@@ -100,8 +101,9 @@ struct FinancialSummary {
     var totalIncome: Double
     var totalExpenses: Double
     var totalDebts: Double
+    var totalLent: Double
     var upcomingPayments: Double
     var balance: Double {
-        totalIncome - totalExpenses - totalDebts
+        totalIncome - totalExpenses - totalDebts + totalLent
     }
 }

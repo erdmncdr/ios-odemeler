@@ -7,15 +7,24 @@ Modern ve şık bir finans takip uygulaması. Liquid glass teması ile premium k
 ### 💰 Temel Fonksiyonlar
 - **Gider Takibi**: Günlük harcamalarınızı kategorilere göre kaydedin
 - **Gelir Yönetimi**: Kazançlarınızı takip edin ve net bakiyenizi görün
-- **Borç Yönetimi**: Borçlarınızı kaydedin ve ödeme durumlarını takip edin
+- **Çift Yönlü Borç Yönetimi**:
+  - Bizim borçlarımızı takip edin (başkalarına olan borçlar)
+  - Verilen borçları takip edin (bize borçlu olanlar)
 - **Gelecek Ödemeler**: Yaklaşan ödemelerinizi hatırlayın ve zamanında ödeyin
+- **📱 Akıllı Bildirimler**:
+  - 3 gün önce hatırlatma
+  - 1 gün önce hatırlatma
+  - Ödeme günü bildirimi
 
 ### 🎨 Tasarım Özellikleri
-- **Liquid Glass Tema**: Modern glassmorphism tasarım dili
+- **Premium Liquid Glass Tema**: Gelişmiş glassmorphism tasarım dili
+  - Çok katmanlı blur efektleri
+  - Gradient stroke'lar
+  - Dinamik gölgeler
 - **Otomatik Dark/Light Mode**: Sistem ayarlarına göre otomatik tema
-- **Premium Animasyonlar**: Akıcı ve doğal geçişler
-- **Özel Bottom Navigation**: Liquid glass efektli özel tab bar
-- **Gradient Renkler**: Göz alıcı renk geçişleri
+- **Premium Animasyonlar**: Spring animasyonları ile akıcı ve doğal geçişler
+- **Özel Bottom Navigation**: Tam liquid glass efektli özel tab bar
+- **Gradient Renkler**: Göz alıcı renk geçişleri ve matched geometry efektleri
 
 ### 📊 Özellikler
 - **Finansal Özet**: Toplam gelir, gider ve bakiye görünümü
@@ -24,6 +33,8 @@ Modern ve şık bir finans takip uygulaması. Liquid glass teması ile premium k
 - **Hızlı İşlemler**: Tek dokunuşla işlem ekleme
 - **Veri Kalıcılığı**: UserDefaults ile otomatik kayıt
 - **Türkçe Lokalizasyon**: Tam Türkçe dil desteği
+- **Segmented Control**: Borçlar ekranında iki tip borç arasında geçiş
+- **Otomatik Bildirim Planlama**: İşlem eklendiğinde/güncellendiğinde otomatik bildirim ayarlama
 
 ## 🏗 Teknik Detaylar
 
@@ -50,7 +61,8 @@ FinanceTracker/
 ├── Components/
 │   └── GlassCardView.swift          # Yeniden kullanılabilir bileşenler
 ├── Utilities/
-│   └── ThemeManager.swift           # Tema sistemi ve stil yönetimi
+│   ├── ThemeManager.swift           # Tema sistemi ve stil yönetimi
+│   └── NotificationManager.swift    # Bildirim yönetimi
 └── Assets.xcassets/                 # Görsel varlıklar
 ```
 
@@ -79,9 +91,16 @@ FinanceTracker/
 - Herhangi bir işlem kartına dokunarak detayları görüntüleyin
 - Uzun basarak silme menüsüne erişin
 
-### Borç Ödeme
-- Borçlar veya Gelecek Ödemeler ekranında
-- "Ödendi Olarak İşaretle" butonuna tıklayın
+### Borç Yönetimi
+- **Bizim Borçlar**: Başkalarına olan borçlarınız
+- **Verilen Borçlar**: Başkalarına verdiğiniz borçlar (bize borçlu olanlar)
+- Segmented control ile iki tip arasında geçiş yapın
+- "Ödendi Olarak İşaretle" veya "Geri Ödendi" butonuna tıklayın
+
+### Bildirimler
+- İlk açılışta bildirim izni istenir
+- Gelecek ödemeler ve borçlar için otomatik bildirim ayarlanır
+- 3 gün önce, 1 gün önce ve ödeme günü bildirimleri
 
 ## 🎨 Tema Sistemi
 
