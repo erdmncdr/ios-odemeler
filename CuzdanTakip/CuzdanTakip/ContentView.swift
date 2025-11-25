@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var selectedTab: Tab = .expenses
+    @State private var showingSettings = false
     @Environment(\.colorScheme) var colorScheme
 
     enum Tab: String, CaseIterable {
@@ -41,33 +42,63 @@ struct ContentView: View {
     }
 
     var body: some View {
-        ZStack {
-            // Arka plan gradient
-            Theme.backgroundGradient(colorScheme)
-                .ignoresSafeArea()
+        NavigationStack {
+            ZStack {
+                // Arka plan gradient
+                Theme.backgroundGradient(colorScheme)
+                    .ignoresSafeArea()
 
-            VStack(spacing: 0) {
-                // Ana içerik
-                TabView(selection: $selectedTab) {
-                    ExpensesView()
-                        .tag(Tab.expenses)
+                VStack(spacing: 0) {
+                    // Ana içerik
+                    TabView(selection: $selectedTab) {
+                        ExpensesView()
+                            .tag(Tab.expenses)
 
-                    IncomeView()
-                        .tag(Tab.income)
+                        IncomeView()
+                            .tag(Tab.income)
 
-                    DebtsView()
-                        .tag(Tab.debts)
+                        DebtsView()
+                            .tag(Tab.debts)
 
-                    UpcomingPaymentsView()
-                        .tag(Tab.upcoming)
+                        UpcomingPaymentsView()
+                            .tag(Tab.upcoming)
+                    }
+                    .tabViewStyle(.page(indexDisplayMode: .never))
+
+                    // Custom Bottom Navigation
+                    CustomTabBar(selectedTab: $selectedTab)
+                        .padding(.horizontal)
+                        .padding(.bottom, 10)
+                        .padding(.top, 5)
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
+            }
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Text("Cüzdan Takip")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundStyle(Theme.primaryGradient)
+                }
 
-                // Custom Bottom Navigation
-                CustomTabBar(selectedTab: $selectedTab)
-                    .padding(.horizontal)
-                    .padding(.bottom, 10)
-                    .padding(.top, 5)
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        HapticManager.shared.impact(style: .light)
+                        showingSettings = true
+                    } label: {
+                        ZStack {
+                            Circle()
+                                .fill(.ultraThinMaterial)
+                                .frame(width: 36, height: 36)
+
+                            Image(systemName: "gearshape.fill")
+                                .font(.system(size: 18))
+                                .foregroundStyle(Theme.primaryGradient)
+                        }
+                    }
+                }
+            }
+            .sheet(isPresented: $showingSettings) {
+                SettingsView()
             }
         }
     }
