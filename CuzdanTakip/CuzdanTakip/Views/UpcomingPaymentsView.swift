@@ -11,10 +11,53 @@ struct UpcomingPaymentsView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddSheet = false
     @State private var selectedTransaction: Transaction?
+    @State private var searchText = ""
+    @State private var filterOptions = FilterOptions()
+    @State private var showingFilterSheet = false
     @Environment(\.colorScheme) var colorScheme
 
     private var upcomingPayments: [Transaction] {
-        dataManager.getUpcomingPayments()
+        let allUpcoming = dataManager.getUpcomingPayments()
+
+        // Filtre aktifse filtrele, değilse sadece arama yap
+        if filterOptions.isActive {
+            // Gelecek ödemeler için filtre
+            let lowercasedQuery = searchText.lowercased()
+            var result = allUpcoming
+
+            // Arama
+            if !searchText.isEmpty {
+                result = result.filter { transaction in
+                    transaction.title.lowercased().contains(lowercasedQuery) ||
+                    transaction.note.lowercased().contains(lowercasedQuery) ||
+                    transaction.category.rawValue.lowercased().contains(lowercasedQuery)
+                }
+            }
+
+            // Kategori filtresi
+            if !filterOptions.categories.isEmpty {
+                result = result.filter { filterOptions.categories.contains($0.category) }
+            }
+
+            // Miktar filtresi
+            if let minAmount = filterOptions.minAmount {
+                result = result.filter { $0.amount >= minAmount }
+            }
+            if let maxAmount = filterOptions.maxAmount {
+                result = result.filter { $0.amount <= maxAmount }
+            }
+
+            return result
+        } else if !searchText.isEmpty {
+            let lowercasedQuery = searchText.lowercased()
+            return allUpcoming.filter { transaction in
+                transaction.title.lowercased().contains(lowercasedQuery) ||
+                transaction.note.lowercased().contains(lowercasedQuery) ||
+                transaction.category.rawValue.lowercased().contains(lowercasedQuery)
+            }
+        } else {
+            return allUpcoming
+        }
     }
 
     private var totalUpcoming: Double {
@@ -54,6 +97,27 @@ struct UpcomingPaymentsView: View {
 
                         Spacer()
 
+                        // Filtre butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingFilterSheet = true
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(Theme.primaryGradient)
+
+                                // Aktif filtre göstergesi
+                                if filterOptions.isActive {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: 2, y: -2)
+                                }
+                            }
+                        }
+                        .padding(.trailing, 8)
+
                         AddTransactionButton {
                             HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
@@ -61,6 +125,10 @@ struct UpcomingPaymentsView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 20)
+
+                    // Arama çubuğu
+                    SearchBar(text: $searchText, placeholder: "Ödeme ara...")
+                        .padding(.horizontal)
 
                     // Özet kartları
                     HStack(spacing: 15) {
@@ -147,6 +215,9 @@ struct UpcomingPaymentsView: View {
         }
         .sheet(item: $selectedTransaction) { transaction in
             TransactionDetailView(transaction: transaction)
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterView(filterOptions: $filterOptions)
         }
     }
 

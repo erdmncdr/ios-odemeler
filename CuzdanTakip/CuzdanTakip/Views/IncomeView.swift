@@ -11,10 +11,26 @@ struct IncomeView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddSheet = false
     @State private var selectedTransaction: Transaction?
+    @State private var searchText = ""
+    @State private var filterOptions = FilterOptions()
+    @State private var showingFilterSheet = false
     @Environment(\.colorScheme) var colorScheme
 
     private var incomes: [Transaction] {
-        dataManager.getTransactions(ofType: .income)
+        let allIncomes = dataManager.getTransactions(ofType: .income)
+
+        // Filtre aktifse filtrele, değilse sadece arama yap
+        if filterOptions.isActive {
+            var options = filterOptions
+            // Sadece gelir tipini göster
+            options.types = [.income]
+            return dataManager.filterTransactions(searchQuery: searchText, filters: options)
+        } else if !searchText.isEmpty {
+            return dataManager.searchTransactions(query: searchText)
+                .filter { $0.type == .income }
+        } else {
+            return allIncomes
+        }
     }
 
     private var totalIncome: Double {
@@ -48,6 +64,27 @@ struct IncomeView: View {
 
                         Spacer()
 
+                        // Filtre butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingFilterSheet = true
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(Theme.primaryGradient)
+
+                                // Aktif filtre göstergesi
+                                if filterOptions.isActive {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: 2, y: -2)
+                                }
+                            }
+                        }
+                        .padding(.trailing, 8)
+
                         AddTransactionButton {
                             HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
@@ -55,6 +92,10 @@ struct IncomeView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 20)
+
+                    // Arama çubuğu
+                    SearchBar(text: $searchText, placeholder: "Gelir ara...")
+                        .padding(.horizontal)
 
                     // Özet kartları
                     HStack(spacing: 15) {
@@ -125,6 +166,9 @@ struct IncomeView: View {
         }
         .sheet(item: $selectedTransaction) { transaction in
             TransactionDetailView(transaction: transaction)
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterView(filterOptions: $filterOptions)
         }
     }
 }

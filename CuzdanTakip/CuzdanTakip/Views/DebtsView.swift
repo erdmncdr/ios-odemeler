@@ -12,6 +12,9 @@ struct DebtsView: View {
     @State private var showingAddSheet = false
     @State private var selectedTransaction: Transaction?
     @State private var selectedDebtType: DebtType = .owed
+    @State private var searchText = ""
+    @State private var filterOptions = FilterOptions()
+    @State private var showingFilterSheet = false
     @Environment(\.colorScheme) var colorScheme
 
     enum DebtType: String, CaseIterable {
@@ -21,7 +24,19 @@ struct DebtsView: View {
 
     // Bizim borçlarımız
     private var debts: [Transaction] {
-        dataManager.getTransactions(ofType: .debt)
+        let allDebts = dataManager.getTransactions(ofType: .debt)
+
+        // Filtre aktifse filtrele, değilse sadece arama yap
+        if filterOptions.isActive {
+            var options = filterOptions
+            options.types = [.debt]
+            return dataManager.filterTransactions(searchQuery: searchText, filters: options)
+        } else if !searchText.isEmpty {
+            return dataManager.searchTransactions(query: searchText)
+                .filter { $0.type == .debt }
+        } else {
+            return allDebts
+        }
     }
 
     private var unpaidDebts: [Transaction] {
@@ -38,7 +53,19 @@ struct DebtsView: View {
 
     // Verilen borçlar
     private var lentMoney: [Transaction] {
-        dataManager.getTransactions(ofType: .lent)
+        let allLent = dataManager.getTransactions(ofType: .lent)
+
+        // Filtre aktifse filtrele, değilse sadece arama yap
+        if filterOptions.isActive {
+            var options = filterOptions
+            options.types = [.lent]
+            return dataManager.filterTransactions(searchQuery: searchText, filters: options)
+        } else if !searchText.isEmpty {
+            return dataManager.searchTransactions(query: searchText)
+                .filter { $0.type == .lent }
+        } else {
+            return allLent
+        }
     }
 
     private var unpaidLent: [Transaction] {
@@ -71,6 +98,27 @@ struct DebtsView: View {
 
                         Spacer()
 
+                        // Filtre butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingFilterSheet = true
+                        } label: {
+                            ZStack(alignment: .topTrailing) {
+                                Image(systemName: "line.3.horizontal.decrease.circle.fill")
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(Theme.primaryGradient)
+
+                                // Aktif filtre göstergesi
+                                if filterOptions.isActive {
+                                    Circle()
+                                        .fill(Color.red)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: 2, y: -2)
+                                }
+                            }
+                        }
+                        .padding(.trailing, 8)
+
                         AddTransactionButton {
                             HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
@@ -78,6 +126,10 @@ struct DebtsView: View {
                     }
                     .padding(.horizontal)
                     .padding(.top, 20)
+
+                    // Arama çubuğu
+                    SearchBar(text: $searchText, placeholder: selectedDebtType == .owed ? "Borç ara..." : "Alacak ara...")
+                        .padding(.horizontal)
 
                     // Segmented Picker
                     Picker("Borç Tipi", selection: $selectedDebtType) {
@@ -145,6 +197,9 @@ struct DebtsView: View {
         }
         .sheet(item: $selectedTransaction) { transaction in
             TransactionDetailView(transaction: transaction)
+        }
+        .sheet(isPresented: $showingFilterSheet) {
+            FilterView(filterOptions: $filterOptions)
         }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedDebtType)
     }
