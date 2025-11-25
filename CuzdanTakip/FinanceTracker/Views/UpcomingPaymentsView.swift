@@ -55,6 +55,7 @@ struct UpcomingPaymentsView: View {
                         Spacer()
 
                         AddTransactionButton {
+                            HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
                         }
                     }
@@ -94,6 +95,7 @@ struct UpcomingPaymentsView: View {
                                 }
                                 .padding(.horizontal)
                                 .onTapGesture {
+                                    HapticManager.shared.impact(style: .light)
                                     selectedTransaction = transaction
                                 }
                                 .transition(.asymmetric(
@@ -116,6 +118,7 @@ struct UpcomingPaymentsView: View {
                                 }
                                 .padding(.horizontal)
                                 .onTapGesture {
+                                    HapticManager.shared.impact(style: .light)
                                     selectedTransaction = transaction
                                 }
                                 .transition(.asymmetric(
@@ -148,6 +151,7 @@ struct UpcomingPaymentsView: View {
     }
 
     private func markAsPaid(_ transaction: Transaction) {
+        HapticManager.shared.success()
         var updated = transaction
         updated.isPaid = true
         dataManager.updateTransaction(updated)
@@ -226,7 +230,10 @@ struct UpcomingPaymentCard: View {
             .padding()
 
             // Ödeme butonu
-            Button(action: onMarkPaid) {
+            Button(action: {
+                HapticManager.shared.impact(style: .medium)
+                onMarkPaid()
+            }) {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 18))

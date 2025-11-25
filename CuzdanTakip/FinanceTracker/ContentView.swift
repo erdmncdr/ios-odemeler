@@ -88,6 +88,7 @@ struct CustomTabBar: View {
                     isSelected: selectedTab == tab,
                     namespace: animation
                 ) {
+                    HapticManager.shared.selection()
                     withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
                         selectedTab = tab
                     }

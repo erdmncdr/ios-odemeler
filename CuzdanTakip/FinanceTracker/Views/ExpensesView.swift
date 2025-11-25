@@ -48,6 +48,7 @@ struct ExpensesView: View {
                         Spacer()
 
                         AddTransactionButton {
+                            HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
                         }
                     }
@@ -81,6 +82,7 @@ struct ExpensesView: View {
                                 TransactionCard(transaction: transaction)
                                     .padding(.horizontal)
                                     .onTapGesture {
+                                        HapticManager.shared.impact(style: .light)
                                         selectedTransaction = transaction
                                     }
                                     .transition(.asymmetric(
@@ -100,10 +102,12 @@ struct ExpensesView: View {
                                 TransactionCard(transaction: transaction)
                                     .padding(.horizontal)
                                     .onTapGesture {
+                                        HapticManager.shared.impact(style: .light)
                                         selectedTransaction = transaction
                                     }
                                     .contextMenu {
                                         Button(role: .destructive) {
+                                            HapticManager.shared.warning()
                                             withAnimation {
                                                 dataManager.deleteTransaction(transaction)
                                             }
@@ -198,12 +202,14 @@ struct AddTransactionView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("İptal") {
+                        HapticManager.shared.impact(style: .light)
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Kaydet") {
+                        HapticManager.shared.success()
                         saveTransaction()
                     }
                     .disabled(!isValid)
@@ -302,12 +308,14 @@ struct TransactionDetailView: View {
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") {
+                        HapticManager.shared.impact(style: .light)
                         dismiss()
                     }
                 }
 
                 ToolbarItem(placement: .destructiveAction) {
                     Button(role: .destructive) {
+                        HapticManager.shared.impact(style: .medium)
                         showingDeleteAlert = true
                     } label: {
                         Image(systemName: "trash")
@@ -315,8 +323,11 @@ struct TransactionDetailView: View {
                 }
             }
             .alert("Silmek istediğinizden emin misiniz?", isPresented: $showingDeleteAlert) {
-                Button("İptal", role: .cancel) { }
+                Button("İptal", role: .cancel) {
+                    HapticManager.shared.impact(style: .light)
+                }
                 Button("Sil", role: .destructive) {
+                    HapticManager.shared.warning()
                     dataManager.deleteTransaction(transaction)
                     dismiss()
                 }

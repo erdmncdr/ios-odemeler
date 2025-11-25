@@ -49,6 +49,7 @@ struct IncomeView: View {
                         Spacer()
 
                         AddTransactionButton {
+                            HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
                         }
                     }
@@ -87,10 +88,12 @@ struct IncomeView: View {
                                 TransactionCard(transaction: transaction)
                                     .padding(.horizontal)
                                     .onTapGesture {
+                                        HapticManager.shared.impact(style: .light)
                                         selectedTransaction = transaction
                                     }
                                     .contextMenu {
                                         Button(role: .destructive) {
+                                            HapticManager.shared.warning()
                                             withAnimation {
                                                 dataManager.deleteTransaction(transaction)
                                             }

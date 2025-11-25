@@ -12,8 +12,8 @@ import SwiftUI
 enum TransactionType: String, Codable, CaseIterable {
     case expense = "Gider"
     case income = "Gelir"
-    case debt = "Borç (Bize)"
-    case lent = "Verilen Borç"
+    case debt = "Borç"
+    case lent = "Alacak"
     case upcoming = "Gelecek Ödeme"
 }
 

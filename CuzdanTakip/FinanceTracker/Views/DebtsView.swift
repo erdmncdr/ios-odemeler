@@ -15,8 +15,8 @@ struct DebtsView: View {
     @Environment(\.colorScheme) var colorScheme
 
     enum DebtType: String, CaseIterable {
-        case owed = "Bizim Borçlarımız"
-        case lent = "Verilen Borçlar"
+        case owed = "Borçlarım"
+        case lent = "Alacaklarım"
     }
 
     // Bizim borçlarımız
@@ -72,6 +72,7 @@ struct DebtsView: View {
                         Spacer()
 
                         AddTransactionButton {
+                            HapticManager.shared.impact(style: .medium)
                             showingAddSheet = true
                         }
                     }
@@ -86,6 +87,9 @@ struct DebtsView: View {
                     }
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
+                    .onChange(of: selectedDebtType) { _, _ in
+                        HapticManager.shared.selection()
+                    }
 
                     // Özet kartları
                     HStack(spacing: 15) {
@@ -109,16 +113,16 @@ struct DebtsView: View {
                             )
                         } else {
                             SummaryCard(
-                                title: "Gelmesi Gereken",
+                                title: "Tahsil Edilecek",
                                 amount: totalUnpaidLent,
                                 icon: "arrow.down.circle.fill",
                                 gradient: Theme.successGradient
                             )
 
                             SummaryCard(
-                                title: "Toplam Verilen",
+                                title: "Toplam Alacak",
                                 amount: lentMoney.reduce(0) { $0 + $1.amount },
-                                icon: "arrow.up.circle.fill",
+                                icon: "dollarsign.circle.fill",
                                 gradient: Theme.primaryGradient
                             )
                         }
@@ -159,6 +163,7 @@ struct DebtsView: View {
                         }
                         .padding(.horizontal)
                         .onTapGesture {
+                            HapticManager.shared.impact(style: .light)
                             selectedTransaction = transaction
                         }
                         .transition(.asymmetric(
@@ -179,10 +184,12 @@ struct DebtsView: View {
                             .padding(.horizontal)
                             .opacity(0.7)
                             .onTapGesture {
+                                HapticManager.shared.impact(style: .light)
                                 selectedTransaction = transaction
                             }
                             .contextMenu {
                                 Button(role: .destructive) {
+                                    HapticManager.shared.warning()
                                     withAnimation {
                                         dataManager.deleteTransaction(transaction)
                                     }
@@ -215,7 +222,7 @@ struct DebtsView: View {
             // Geri ödenmemiş
             if !unpaidLent.isEmpty {
                 VStack(spacing: 12) {
-                    SectionHeader("Geri Ödenmesi Gerekenler", icon: "arrow.down.circle.fill")
+                    SectionHeader("Tahsil Edilecekler", icon: "arrow.down.circle.fill")
 
                     ForEach(unpaidLent) { transaction in
                         LentCard(transaction: transaction) {
@@ -223,6 +230,7 @@ struct DebtsView: View {
                         }
                         .padding(.horizontal)
                         .onTapGesture {
+                            HapticManager.shared.impact(style: .light)
                             selectedTransaction = transaction
                         }
                         .transition(.asymmetric(
@@ -243,10 +251,12 @@ struct DebtsView: View {
                             .padding(.horizontal)
                             .opacity(0.7)
                             .onTapGesture {
+                                HapticManager.shared.impact(style: .light)
                                 selectedTransaction = transaction
                             }
                             .contextMenu {
                                 Button(role: .destructive) {
+                                    HapticManager.shared.warning()
                                     withAnimation {
                                         dataManager.deleteTransaction(transaction)
                                     }
@@ -264,9 +274,9 @@ struct DebtsView: View {
 
             if lentMoney.isEmpty {
                 EmptyStateView(
-                    icon: "arrow.up.circle",
-                    title: "Henüz borç vermediniz",
-                    message: "Verdiğiniz borçlar burada görünecek"
+                    icon: "dollarsign.circle",
+                    title: "Henüz alacağınız yok",
+                    message: "Alacaklarınız burada görünecek"
                 )
                 .padding(.top, 60)
             }
@@ -274,6 +284,7 @@ struct DebtsView: View {
     }
 
     private func markAsPaid(_ transaction: Transaction) {
+        HapticManager.shared.success()
         var updated = transaction
         updated.isPaid = true
         dataManager.updateTransaction(updated)
@@ -296,8 +307,8 @@ struct DebtSelectionView: View {
                 VStack(spacing: 16) {
                     NavigationLink(destination: AddTransactionView(transactionType: .debt)) {
                         DebtTypeCard(
-                            title: "Bizim Borcumuz",
-                            description: "Başkalarına olan borçlarınız",
+                            title: "Borç Aldım",
+                            description: "Başkalarından aldığım borçlar",
                             icon: "creditcard.fill",
                             gradient: LinearGradient(
                                 colors: [.orange, .red],
@@ -309,9 +320,9 @@ struct DebtSelectionView: View {
 
                     NavigationLink(destination: AddTransactionView(transactionType: .lent)) {
                         DebtTypeCard(
-                            title: "Verilen Borç",
-                            description: "Başkalarına verdiğiniz borçlar",
-                            icon: "arrow.up.circle.fill",
+                            title: "Alacak",
+                            description: "Başkalarına verdiğim borçlar (alacaklarım)",
+                            icon: "dollarsign.circle.fill",
                             gradient: Theme.successGradient
                         )
                     }
@@ -416,12 +427,15 @@ struct LentCard: View {
             .padding()
 
             // Ödendi butonu
-            Button(action: onMarkPaid) {
+            Button(action: {
+                HapticManager.shared.impact(style: .medium)
+                onMarkPaid()
+            }) {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 18))
 
-                    Text("Geri Ödendi")
+                    Text("Tahsil Edildi")
                         .font(Theme.callout)
                         .fontWeight(.semibold)
                 }
@@ -483,7 +497,10 @@ struct DebtCard: View {
             .padding()
 
             // Ödeme butonu
-            Button(action: onMarkPaid) {
+            Button(action: {
+                HapticManager.shared.impact(style: .medium)
+                onMarkPaid()
+            }) {
                 HStack {
                     Image(systemName: "checkmark.circle.fill")
                         .font(.system(size: 18))
