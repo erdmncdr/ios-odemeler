@@ -146,6 +146,7 @@ struct ExpensesView: View {
 // Yeni işlem ekleme ekranı
 struct AddTransactionView: View {
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var dataManager: DataManager
 
     let transactionType: TransactionType
@@ -161,7 +162,7 @@ struct AddTransactionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(.light)
+                Theme.backgroundGradient(colorScheme)
                     .ignoresSafeArea()
 
                 Form {
@@ -245,13 +246,14 @@ struct AddTransactionView: View {
 struct TransactionDetailView: View {
     let transaction: Transaction
     @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var dataManager: DataManager
     @State private var showingDeleteAlert = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(.light)
+                Theme.backgroundGradient(colorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {

@@ -442,13 +442,23 @@ struct LentCard: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(Theme.successGradient)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Theme.successGradient)
+                )
             }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
-        .premiumCard()
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.green.opacity(0.5), lineWidth: 2)
+        )
+        .shadow(
+            color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
+            radius: 15,
+            x: 0,
+            y: 5
         )
     }
 }
@@ -512,13 +522,23 @@ struct DebtCard: View {
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)
-                .background(Theme.successGradient)
+                .background(
+                    RoundedRectangle(cornerRadius: 20)
+                        .fill(Theme.successGradient)
+                )
             }
+            .clipShape(RoundedRectangle(cornerRadius: 20))
         }
-        .premiumCard()
+        .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
                 .stroke(Color.orange.opacity(0.5), lineWidth: 2)
+        )
+        .shadow(
+            color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
+            radius: 15,
+            x: 0,
+            y: 5
         )
     }
 }
