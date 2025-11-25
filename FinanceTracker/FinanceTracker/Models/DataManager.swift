@@ -1,0 +1,209 @@
+//
+//  DataManager.swift
+//  FinanceTracker
+//
+//  Veri yönetimi ve persistence
+//
+
+import Foundation
+import SwiftUI
+
+class DataManager: ObservableObject {
+    static let shared = DataManager()
+
+    @Published var transactions: [Transaction] = []
+
+    private let saveKey = "SavedTransactions"
+
+    init() {
+        loadData()
+        // Demo data ekle (ilk açılışta)
+        if transactions.isEmpty {
+            addDemoData()
+        }
+    }
+
+    // CRUD İşlemleri
+    func addTransaction(_ transaction: Transaction) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            transactions.append(transaction)
+        }
+        saveData()
+    }
+
+    func updateTransaction(_ transaction: Transaction) {
+        if let index = transactions.firstIndex(where: { $0.id == transaction.id }) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                transactions[index] = transaction
+            }
+            saveData()
+        }
+    }
+
+    func deleteTransaction(_ transaction: Transaction) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            transactions.removeAll { $0.id == transaction.id }
+        }
+        saveData()
+    }
+
+    func deleteTransaction(at offsets: IndexSet, from list: [Transaction]) {
+        let transactionsToDelete = offsets.map { list[$0] }
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            transactions.removeAll { transaction in
+                transactionsToDelete.contains(where: { $0.id == transaction.id })
+            }
+        }
+        saveData()
+    }
+
+    // Filtreleme
+    func getTransactions(ofType type: TransactionType) -> [Transaction] {
+        transactions.filter { $0.type == type }
+            .sorted { $0.date > $1.date }
+    }
+
+    func getUpcomingPayments() -> [Transaction] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        return transactions.filter { transaction in
+            guard let dueDate = transaction.dueDate else { return false }
+            let transactionDay = calendar.startOfDay(for: dueDate)
+            return transactionDay >= today && !transaction.isPaid
+        }.sorted {
+            ($0.dueDate ?? Date()) < ($1.dueDate ?? Date())
+        }
+    }
+
+    // İstatistikler
+    func getFinancialSummary() -> FinancialSummary {
+        let income = transactions
+            .filter { $0.type == .income && $0.isPaid }
+            .reduce(0) { $0 + $1.amount }
+
+        let expenses = transactions
+            .filter { $0.type == .expense && $0.isPaid }
+            .reduce(0) { $0 + $1.amount }
+
+        let debts = transactions
+            .filter { $0.type == .debt && !$0.isPaid }
+            .reduce(0) { $0 + $1.amount }
+
+        let upcoming = getUpcomingPayments()
+            .reduce(0) { $0 + $1.amount }
+
+        return FinancialSummary(
+            totalIncome: income,
+            totalExpenses: expenses,
+            totalDebts: debts,
+            upcomingPayments: upcoming
+        )
+    }
+
+    func getTodayTransactions() -> [Transaction] {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        return transactions.filter { transaction in
+            calendar.isDate(transaction.date, inSameDayAs: today)
+        }.sorted { $0.date > $1.date }
+    }
+
+    // Persistence
+    private func saveData() {
+        if let encoded = try? JSONEncoder().encode(transactions) {
+            UserDefaults.standard.set(encoded, forKey: saveKey)
+        }
+    }
+
+    private func loadData() {
+        if let data = UserDefaults.standard.data(forKey: saveKey),
+           let decoded = try? JSONDecoder().decode([Transaction].self, from: data) {
+            transactions = decoded
+        }
+    }
+
+    // Demo data
+    private func addDemoData() {
+        let calendar = Calendar.current
+
+        // Gelirler
+        transactions.append(Transaction(
+            title: "Maaş",
+            amount: 25000,
+            type: .income,
+            category: .salary,
+            date: calendar.date(byAdding: .day, value: -5, to: Date()) ?? Date()
+        ))
+
+        // Giderler
+        transactions.append(Transaction(
+            title: "Market Alışverişi",
+            amount: 850,
+            type: .expense,
+            category: .food,
+            date: calendar.date(byAdding: .day, value: -2, to: Date()) ?? Date()
+        ))
+
+        transactions.append(Transaction(
+            title: "Benzin",
+            amount: 500,
+            type: .expense,
+            category: .transport,
+            date: calendar.date(byAdding: .day, value: -1, to: Date()) ?? Date()
+        ))
+
+        transactions.append(Transaction(
+            title: "Netflix",
+            amount: 150,
+            type: .expense,
+            category: .entertainment,
+            date: Date()
+        ))
+
+        // Borçlar
+        transactions.append(Transaction(
+            title: "Kredi Kartı Borcu",
+            amount: 3500,
+            type: .debt,
+            category: .bills,
+            date: calendar.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 15, to: Date())
+        ))
+
+        transactions.append(Transaction(
+            title: "Arkadaşa Borç",
+            amount: 500,
+            type: .debt,
+            category: .other,
+            date: calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 10, to: Date())
+        ))
+
+        // Gelecek ödemeler
+        transactions.append(Transaction(
+            title: "Elektrik Faturası",
+            amount: 450,
+            type: .upcoming,
+            category: .bills,
+            date: Date(),
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 5, to: Date())
+        ))
+
+        transactions.append(Transaction(
+            title: "İnternet Faturası",
+            amount: 250,
+            type: .upcoming,
+            category: .bills,
+            date: Date(),
+            isPaid: false,
+            dueDate: calendar.date(byAdding: .day, value: 8, to: Date())
+        ))
+
+        saveData()
+    }
+}
