@@ -12,7 +12,9 @@ import UserNotifications
 struct CuzdanTakipApp: App {
     @StateObject private var dataManager = DataManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
+    @StateObject private var biometricAuth = BiometricAuthManager.shared
     @State private var showNotificationPermission = false
+    @Environment(\.scenePhase) var scenePhase
 
     init() {
         // Bildirim delegate'ini ayarla
@@ -21,17 +23,42 @@ struct CuzdanTakipApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(dataManager)
-                .environmentObject(notificationManager)
-                .preferredColorScheme(nil) // Otomatik dark/light mode
-                .onAppear {
-                    // Bildirim izni kontrolü
-                    checkNotificationPermission()
+            ZStack {
+                ContentView()
+                    .environmentObject(dataManager)
+                    .environmentObject(notificationManager)
+                    .environmentObject(biometricAuth)
+                    .preferredColorScheme(nil) // Otomatik dark/light mode
+                    .onAppear {
+                        // Bildirim izni kontrolü
+                        checkNotificationPermission()
+                    }
+                    .sheet(isPresented: $showNotificationPermission) {
+                        NotificationPermissionView()
+                    }
+
+                // Kilit ekranı overlay
+                if biometricAuth.isLocked && biometricAuth.isBiometricEnabled {
+                    LockScreenView()
+                        .environmentObject(biometricAuth)
+                        .transition(.opacity)
+                        .zIndex(999)
                 }
-                .sheet(isPresented: $showNotificationPermission) {
-                    NotificationPermissionView()
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                switch newPhase {
+                case .background:
+                    // Uygulama arka plana geçtiğinde kilitle
+                    biometricAuth.lockApp()
+                case .active:
+                    // Uygulama aktif olduğunda tekrarlayan işlemleri kontrol et
+                    dataManager.generateRecurringTransactions()
+                case .inactive:
+                    break
+                @unknown default:
+                    break
                 }
+            }
         }
     }
 

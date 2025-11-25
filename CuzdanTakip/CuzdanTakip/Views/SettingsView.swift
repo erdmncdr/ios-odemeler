@@ -1,0 +1,168 @@
+//
+//  SettingsView.swift
+//  CuzdanTakip
+//
+//  Ayarlar ekranı
+//
+
+import SwiftUI
+
+struct SettingsView: View {
+    @Environment(\.dismiss) var dismiss
+    @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var biometricAuth: BiometricAuthManager
+    @EnvironmentObject var dataManager: DataManager
+    @State private var showingCategoryManager = false
+    @State private var showingRecurringPayments = false
+
+    var body: some View {
+        NavigationStack {
+            ZStack {
+                Theme.backgroundGradient(colorScheme)
+                    .ignoresSafeArea()
+
+                List {
+                    // Güvenlik
+                    Section {
+                        HStack(spacing: 16) {
+                            Image(systemName: biometricAuth.biometricType().icon)
+                                .font(.system(size: 24))
+                                .foregroundStyle(Theme.primaryGradient)
+                                .frame(width: 40)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Biyometrik Kilit")
+                                    .font(Theme.headline)
+
+                                Text(biometricAuth.biometricType().name)
+                                    .font(Theme.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            Toggle("", isOn: $biometricAuth.isBiometricEnabled)
+                                .labelsHidden()
+                        }
+                        .padding(.vertical, 8)
+                    } header: {
+                        Text("Güvenlik")
+                    } footer: {
+                        if biometricAuth.biometricType() != .none {
+                            Text("Uygulama her açıldığında \(biometricAuth.biometricType().name) ile kimlik doğrulama yapılacak")
+                        } else {
+                            Text("Bu cihazda biyometrik kimlik doğrulama mevcut değil")
+                        }
+                    }
+
+                    // Yönetim
+                    Section("Yönetim") {
+                        // Kategoriler
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingCategoryManager = true
+                        } label: {
+                            SettingsRow(
+                                icon: "folder.fill",
+                                title: "Kategoriler",
+                                subtitle: "\(dataManager.customCategories.count) özel kategori",
+                                color: .purple
+                            )
+                        }
+
+                        // Tekrarlayan ödemeler
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingRecurringPayments = true
+                        } label: {
+                            SettingsRow(
+                                icon: "repeat.circle.fill",
+                                title: "Tekrarlayan Ödemeler",
+                                subtitle: "\(dataManager.recurringTransactions.count) ödeme",
+                                color: .orange
+                            )
+                        }
+                    }
+
+                    // Hakkında
+                    Section("Uygulama") {
+                        SettingsRow(
+                            icon: "info.circle.fill",
+                            title: "Versiyon",
+                            subtitle: "1.0.0",
+                            color: .blue
+                        )
+
+                        SettingsRow(
+                            icon: "star.fill",
+                            title: "Cüzdan Takip v2",
+                            subtitle: "Premium finans yönetimi",
+                            color: .yellow
+                        )
+                    }
+                }
+                .scrollContentBackground(.hidden)
+            }
+            .navigationTitle("Ayarlar")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Kapat") {
+                        HapticManager.shared.impact(style: .light)
+                        dismiss()
+                    }
+                }
+            }
+            .sheet(isPresented: $showingCategoryManager) {
+                CategoryManagerView()
+            }
+            .sheet(isPresented: $showingRecurringPayments) {
+                RecurringPaymentsView()
+            }
+        }
+    }
+}
+
+struct SettingsRow: View {
+    let icon: String
+    let title: String
+    let subtitle: String
+    let color: Color
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(color.opacity(0.2))
+                    .frame(width: 40, height: 40)
+
+                Image(systemName: icon)
+                    .font(.system(size: 18))
+                    .foregroundColor(color)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(Theme.headline)
+                    .foregroundColor(.primary)
+
+                Text(subtitle)
+                    .font(Theme.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .font(.system(size: 14))
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 8)
+    }
+}
+
+#Preview {
+    SettingsView()
+        .environmentObject(BiometricAuthManager.shared)
+        .environmentObject(DataManager.shared)
+}

@@ -28,6 +28,9 @@
 		A1000019 /* SmartCategoryPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000019 /* SmartCategoryPicker.swift */; };
 		A1000020 /* RecurringTransaction.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000020 /* RecurringTransaction.swift */; };
 		A1000021 /* RecurringPaymentsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000021 /* RecurringPaymentsView.swift */; };
+		A1000022 /* BiometricAuthManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000022 /* BiometricAuthManager.swift */; };
+		A1000023 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000023 /* LockScreenView.swift */; };
+		A1000024 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024 /* SettingsView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -53,6 +56,9 @@
 		A2000019 /* SmartCategoryPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SmartCategoryPicker.swift; sourceTree = "<group>"; };
 		A2000020 /* RecurringTransaction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringTransaction.swift; sourceTree = "<group>"; };
 		A2000021 /* RecurringPaymentsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecurringPaymentsView.swift; sourceTree = "<group>"; };
+		A2000022 /* BiometricAuthManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BiometricAuthManager.swift; sourceTree = "<group>"; };
+		A2000023 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
+		A2000024 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -117,6 +123,8 @@
 				A2000009 /* UpcomingPaymentsView.swift */,
 				A2000018 /* CategoryManagerView.swift */,
 				A2000021 /* RecurringPaymentsView.swift */,
+				A2000023 /* LockScreenView.swift */,
+				A2000024 /* SettingsView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -138,6 +146,7 @@
 				A2000005 /* ThemeManager.swift */,
 				A2000012 /* NotificationManager.swift */,
 				A2000013 /* HapticManager.swift */,
+				A2000022 /* BiometricAuthManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -232,6 +241,9 @@
 				A1000019 /* SmartCategoryPicker.swift in Sources */,
 				A1000020 /* RecurringTransaction.swift in Sources */,
 				A1000021 /* RecurringPaymentsView.swift in Sources */,
+				A1000022 /* BiometricAuthManager.swift in Sources */,
+				A1000023 /* LockScreenView.swift in Sources */,
+				A1000024 /* SettingsView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
