@@ -13,17 +13,22 @@ class DataManager: ObservableObject {
 
     @Published var transactions: [Transaction] = []
     @Published var customCategories: [CustomCategory] = []
+    @Published var recurringTransactions: [RecurringTransaction] = []
 
     private let saveKey = "SavedTransactions"
     private let customCategoriesKey = "CustomCategories"
+    private let recurringKey = "RecurringTransactions"
 
     init() {
         loadData()
         loadCustomCategories()
+        loadRecurringTransactions()
         // Demo data ekle (ilk açılışta)
         if transactions.isEmpty {
             addDemoData()
         }
+        // Tekrarlayan işlemleri kontrol et ve oluştur
+        generateRecurringTransactions()
     }
 
     // CRUD İşlemleri
@@ -300,7 +305,90 @@ class DataManager: ObservableObject {
         }
     }
 
-    // Demo data
+    // MARK: - Tekrarlayan İşlemler
+
+    /// Yeni tekrarlayan işlem ekler
+    func addRecurringTransaction(_ recurring: RecurringTransaction) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            recurringTransactions.append(recurring)
+        }
+        saveRecurringTransactions()
+    }
+
+    /// Tekrarlayan işlemi günceller
+    func updateRecurringTransaction(_ recurring: RecurringTransaction) {
+        if let index = recurringTransactions.firstIndex(where: { $0.id == recurring.id }) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                recurringTransactions[index] = recurring
+            }
+            saveRecurringTransactions()
+        }
+    }
+
+    /// Tekrarlayan işlemi siler
+    func deleteRecurringTransaction(_ recurring: RecurringTransaction) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            recurringTransactions.removeAll { $0.id == recurring.id }
+        }
+        saveRecurringTransactions()
+    }
+
+    /// Tekrarlayan işlemi aktif/pasif yapar
+    func toggleRecurringTransaction(_ recurring: RecurringTransaction) {
+        if let index = recurringTransactions.firstIndex(where: { $0.id == recurring.id }) {
+            recurringTransactions[index].isActive.toggle()
+            saveRecurringTransactions()
+        }
+    }
+
+    /// Otomatik işlem oluşturma
+    func generateRecurringTransactions() {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+
+        for (index, recurring) in recurringTransactions.enumerated() {
+            guard recurring.shouldGenerate else { continue }
+
+            let nextDate = recurring.nextPaymentDate
+
+            // Eğer bir sonraki ödeme tarihi bugün veya geçmişte ise işlem oluştur
+            if nextDate <= today {
+                // İşlemi oluştur
+                let transaction = Transaction(
+                    title: recurring.title,
+                    amount: recurring.amount,
+                    type: recurring.type,
+                    category: recurring.category,
+                    date: nextDate,
+                    note: recurring.note + " (Otomatik)",
+                    isPaid: false,
+                    dueDate: nextDate,
+                    customCategoryId: recurring.customCategoryId
+                )
+
+                addTransaction(transaction)
+
+                // Son oluşturma tarihini güncelle
+                recurringTransactions[index].lastGenerated = nextDate
+                saveRecurringTransactions()
+            }
+        }
+    }
+
+    private func saveRecurringTransactions() {
+        if let encoded = try? JSONEncoder().encode(recurringTransactions) {
+            UserDefaults.standard.set(encoded, forKey: recurringKey)
+        }
+    }
+
+    private func loadRecurringTransactions() {
+        if let data = UserDefaults.standard.data(forKey: recurringKey),
+           let decoded = try? JSONDecoder().decode([RecurringTransaction].self, from: data) {
+            recurringTransactions = decoded
+        }
+    }
+
+    // MARK: - Demo data
     private func addDemoData() {
         let calendar = Calendar.current
 
