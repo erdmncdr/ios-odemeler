@@ -62,7 +62,6 @@ struct ContentView: View {
                         .tag(Tab.upcoming)
                 }
                 .tabViewStyle(.page(indexDisplayMode: .never))
-                .animation(.spring(response: 0.4, dampingFraction: 0.8), value: selectedTab)
 
                 // Custom Bottom Navigation
                 CustomTabBar(selectedTab: $selectedTab)
@@ -89,7 +88,7 @@ struct CustomTabBar: View {
                     namespace: animation
                 ) {
                     HapticManager.shared.selection()
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                    withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.86, blendDuration: 0)) {
                         selectedTab = tab
                     }
                 }
@@ -148,6 +147,7 @@ struct TabBarButton: View {
     let isSelected: Bool
     let namespace: Namespace.ID
     let action: () -> Void
+    @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
@@ -164,6 +164,7 @@ struct TabBarButton: View {
                     Image(systemName: tab.icon)
                         .font(.system(size: 22, weight: isSelected ? .bold : .regular))
                         .foregroundColor(isSelected ? .white : .secondary)
+                        .scaleEffect(isPressed ? 0.92 : 1.0)
                 }
 
                 Text(tab.rawValue)
@@ -172,8 +173,24 @@ struct TabBarButton: View {
                     .foregroundColor(isSelected ? .primary : .secondary)
             }
             .frame(maxWidth: .infinity)
+            .contentShape(Rectangle())
         }
-        .buttonStyle(ScaleButtonStyle())
+        .buttonStyle(PremiumTabButtonStyle(isPressed: $isPressed))
+    }
+}
+
+// Premium tab button style - optimized for smooth animations
+struct PremiumTabButtonStyle: ButtonStyle {
+    @Binding var isPressed: Bool
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
+            .onChange(of: configuration.isPressed) { _, newValue in
+                withAnimation(.easeInOut(duration: 0.15)) {
+                    isPressed = newValue
+                }
+            }
     }
 }
 
