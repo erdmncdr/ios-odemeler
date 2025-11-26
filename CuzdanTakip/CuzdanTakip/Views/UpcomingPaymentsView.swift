@@ -112,28 +112,38 @@ struct UpcomingPaymentsView: View {
 
                         Spacer()
 
-                        // Filtre butonu
+                        // Filtre butonu - eşit boyut
                         Button {
                             HapticManager.shared.impact(style: .light)
                             showingFilterSheet = true
                         } label: {
                             ZStack(alignment: .topTrailing) {
+                                Circle()
+                                    .fill(Theme.primaryGradient)
+                                    .frame(width: 60, height: 60)
+                                    .shadow(color: Color.blue.opacity(0.4), radius: 15, x: 0, y: 8)
+
                                 Image(systemName: "line.3.horizontal.decrease.circle.fill")
-                                    .font(.system(size: 28))
-                                    .foregroundStyle(Theme.primaryGradient)
+                                    .font(.system(size: 28, weight: .bold))
+                                    .foregroundColor(.white)
 
                                 // Aktif filtre göstergesi
                                 if filterOptions.isActive {
                                     Circle()
                                         .fill(Color.red)
-                                        .frame(width: 10, height: 10)
-                                        .offset(x: 2, y: -2)
+                                        .frame(width: 12, height: 12)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white, lineWidth: 2)
+                                        )
+                                        .offset(x: 4, y: -4)
                                 }
                             }
                         }
+                        .buttonStyle(ScaleButtonStyle())
                         .padding(.trailing, 8)
 
-                        // Menü butonu - Ödeme ekle veya tekrarlayan ödemeler
+                        // Menü butonu - eşit boyut + badge
                         Menu {
                             Button {
                                 HapticManager.shared.impact(style: .medium)
@@ -146,20 +156,39 @@ struct UpcomingPaymentsView: View {
                                 HapticManager.shared.impact(style: .medium)
                                 showingRecurringPayments = true
                             } label: {
-                                Label("Tekrarlayan Ödemeler", systemImage: "repeat.circle.fill")
+                                Label("Tekrarlayan Ödemeler (\(activeRecurringCount))", systemImage: "repeat.circle.fill")
                             }
                         } label: {
-                            ZStack {
+                            ZStack(alignment: .topTrailing) {
                                 Circle()
                                     .fill(Theme.primaryGradient)
-                                    .frame(width: 50, height: 50)
-                                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                                    .frame(width: 60, height: 60)
+                                    .shadow(color: Color.blue.opacity(0.4), radius: 15, x: 0, y: 8)
 
                                 Image(systemName: "plus")
-                                    .font(.system(size: 20, weight: .semibold))
+                                    .font(.system(size: 28, weight: .bold))
                                     .foregroundColor(.white)
+
+                                // Tekrarlayan ödeme badge'i
+                                if activeRecurringCount > 0 {
+                                    ZStack {
+                                        Circle()
+                                            .fill(Color.orange)
+                                            .frame(width: 20, height: 20)
+
+                                        Circle()
+                                            .stroke(Color.white, lineWidth: 2)
+                                            .frame(width: 20, height: 20)
+
+                                        Image(systemName: "repeat")
+                                            .font(.system(size: 10, weight: .bold))
+                                            .foregroundColor(.white)
+                                    }
+                                    .offset(x: 8, y: -8)
+                                }
                             }
                         }
+                        .buttonStyle(ScaleButtonStyle())
                     }
                     .padding(.horizontal)
                     .padding(.top, 20)
