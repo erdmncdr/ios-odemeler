@@ -15,6 +15,8 @@ struct DebtsView: View {
     @State private var searchText = ""
     @State private var filterOptions = FilterOptions()
     @State private var showingFilterSheet = false
+    @State private var showingPaymentConfirmation = false
+    @State private var transactionToMark: Transaction?
     @Environment(\.colorScheme) var colorScheme
 
     enum DebtType: String, CaseIterable {
@@ -201,6 +203,20 @@ struct DebtsView: View {
         .sheet(isPresented: $showingFilterSheet) {
             FilterView(filterOptions: $filterOptions)
         }
+        .alert(transactionToMark?.type == .debt ? "Borç Ödeme" : "Alacak Tahsilat", isPresented: $showingPaymentConfirmation) {
+            Button("Sadece İşaretle", role: .cancel) {
+                confirmPayment(createTransaction: false)
+            }
+            Button(transactionToMark?.type == .debt ? "Gider Olarak Kaydet" : "Gelir Olarak Kaydet") {
+                confirmPayment(createTransaction: true)
+            }
+        } message: {
+            if transactionToMark?.type == .debt {
+                Text("Bu ödemeyi gider olarak da kaydetmek ister misiniz?\n\n₺\(transactionToMark?.amount ?? 0, specifier: "%.2f") tutarında gider kaydı oluşturulacak.")
+            } else {
+                Text("Bu tahsilatı gelir olarak da kaydetmek ister misiniz?\n\n₺\(transactionToMark?.amount ?? 0, specifier: "%.2f") tutarında gelir kaydı oluşturulacak.")
+            }
+        }
         .animation(.spring(response: 0.3, dampingFraction: 0.7), value: selectedDebtType)
     }
 
@@ -339,10 +355,36 @@ struct DebtsView: View {
     }
 
     private func markAsPaid(_ transaction: Transaction) {
+        transactionToMark = transaction
+        showingPaymentConfirmation = true
+    }
+
+    private func confirmPayment(createTransaction: Bool) {
+        guard let transaction = transactionToMark else { return }
+
         HapticManager.shared.success()
         var updated = transaction
         updated.isPaid = true
         dataManager.updateTransaction(updated)
+
+        // Gelir/gider kaydı oluştur
+        if createTransaction {
+            let newTransaction = Transaction(
+                title: transaction.title,
+                amount: transaction.amount,
+                type: transaction.type == .debt ? .expense : .income,
+                category: transaction.category,
+                date: Date(),
+                note: transaction.type == .debt ?
+                    "Borç ödemesi: \(transaction.title)" :
+                    "Alacak tahsilatı: \(transaction.title)",
+                isPaid: true,
+                customCategoryId: transaction.customCategoryId
+            )
+            dataManager.addTransaction(newTransaction)
+        }
+
+        transactionToMark = nil
     }
 }
 
