@@ -557,7 +557,7 @@ struct AnalyticsView: View {
         formatter.dateFormat = "d MMM"
         formatter.locale = Locale(identifier: "tr_TR")
 
-        return "\(formatter.string(from: maxDay.key)) (₺\(maxDay.value, specifier: "%.0f"))"
+        return "\(formatter.string(from: maxDay.key)) (₺\(String(format: "%.0f", maxDay.value)))"
     }
 }
 
