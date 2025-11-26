@@ -70,6 +70,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                         .padding(.top, 5)
+                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedTab)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -109,6 +110,7 @@ struct CustomTabBar: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(\.colorScheme) var colorScheme
     @Namespace private var animation
+    @State private var isAnimating = false
 
     var body: some View {
         HStack(spacing: 0) {
@@ -118,9 +120,13 @@ struct CustomTabBar: View {
                     isSelected: selectedTab == tab,
                     namespace: animation
                 ) {
+                    guard !isAnimating else { return }
                     HapticManager.shared.selection()
-                    withAnimation(.interactiveSpring(response: 0.35, dampingFraction: 0.86, blendDuration: 0)) {
-                        selectedTab = tab
+                    isAnimating = true
+                    selectedTab = tab
+
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        isAnimating = false
                     }
                 }
             }
@@ -178,7 +184,6 @@ struct TabBarButton: View {
     let isSelected: Bool
     let namespace: Namespace.ID
     let action: () -> Void
-    @State private var isPressed = false
 
     var body: some View {
         Button(action: action) {
@@ -188,40 +193,33 @@ struct TabBarButton: View {
                         RoundedRectangle(cornerRadius: 15)
                             .fill(tab.gradient)
                             .frame(width: 50, height: 50)
-                            .matchedGeometryEffect(id: "TAB_BACKGROUND", in: namespace)
+                            .matchedGeometryEffect(
+                                id: "TAB_BACKGROUND",
+                                in: namespace,
+                                properties: .frame,
+                                anchor: .center,
+                                isSource: true
+                            )
                             .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+                            .transition(.scale.combined(with: .opacity))
                     }
 
                     Image(systemName: tab.icon)
                         .font(.system(size: 22, weight: isSelected ? .bold : .regular))
                         .foregroundColor(isSelected ? .white : .secondary)
-                        .scaleEffect(isPressed ? 0.92 : 1.0)
+                        .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
 
                 Text(tab.rawValue)
                     .font(Theme.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .foregroundColor(isSelected ? .primary : .secondary)
+                    .animation(.easeInOut(duration: 0.2), value: isSelected)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
         }
-        .buttonStyle(PremiumTabButtonStyle(isPressed: $isPressed))
-    }
-}
-
-// Premium tab button style - optimized for smooth animations
-struct PremiumTabButtonStyle: ButtonStyle {
-    @Binding var isPressed: Bool
-
-    func makeBody(configuration: Configuration) -> some View {
-        configuration.label
-            .opacity(configuration.isPressed ? 0.7 : 1.0)
-            .onChange(of: configuration.isPressed) { _, newValue in
-                withAnimation(.easeInOut(duration: 0.15)) {
-                    isPressed = newValue
-                }
-            }
+        .buttonStyle(.plain)
     }
 }
 
