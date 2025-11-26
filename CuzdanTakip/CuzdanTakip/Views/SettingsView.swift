@@ -15,6 +15,7 @@ struct SettingsView: View {
     @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingCategoryManager = false
     @State private var showingRecurringPayments = false
+    @State private var showingClearDataAlert = false
 
     var body: some View {
         NavigationStack {
@@ -123,6 +124,43 @@ struct SettingsView: View {
                         }
                     }
 
+                    // Veri Yönetimi
+                    Section {
+                        Button(role: .destructive) {
+                            HapticManager.shared.impact(style: .medium)
+                            showingClearDataAlert = true
+                        } label: {
+                            HStack(spacing: 16) {
+                                ZStack {
+                                    Circle()
+                                        .fill(Color.red.opacity(0.2))
+                                        .frame(width: 40, height: 40)
+
+                                    Image(systemName: "trash.fill")
+                                        .font(.system(size: 18))
+                                        .foregroundColor(.red)
+                                }
+
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text("Tüm Verileri Sil")
+                                        .font(Theme.headline)
+                                        .foregroundColor(.red)
+
+                                    Text("\(dataManager.transactions.count) işlem silinecek")
+                                        .font(Theme.caption)
+                                        .foregroundColor(.secondary)
+                                }
+
+                                Spacer()
+                            }
+                            .padding(.vertical, 8)
+                        }
+                    } header: {
+                        Text("Veri Yönetimi")
+                    } footer: {
+                        Text("Tüm işlemler, kategoriler ve tekrarlayan ödemeler kalıcı olarak silinecektir. Bu işlem geri alınamaz!")
+                    }
+
                     // Hakkında
                     Section("Uygulama") {
                         SettingsRow(
@@ -157,6 +195,15 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingRecurringPayments) {
                 RecurringPaymentsView()
+            }
+            .alert("Tüm Verileri Sil?", isPresented: $showingClearDataAlert) {
+                Button("İptal", role: .cancel) { }
+                Button("Sil", role: .destructive) {
+                    HapticManager.shared.notification(type: .warning)
+                    dataManager.clearAllData()
+                }
+            } message: {
+                Text("Bu işlem geri alınamaz! Tüm işlemler, kategoriler ve tekrarlayan ödemeler kalıcı olarak silinecektir.")
             }
         }
     }

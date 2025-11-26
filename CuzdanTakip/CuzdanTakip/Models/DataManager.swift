@@ -342,6 +342,21 @@ class DataManager: ObservableObject {
         }
     }
 
+    /// TÜM VERİLERİ SİLER - GERİ ALINAMAZ!
+    func clearAllData() {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            transactions.removeAll()
+            customCategories.removeAll()
+            recurringTransactions.removeAll()
+        }
+        saveData()
+        saveCustomCategories()
+        saveRecurringTransactions()
+
+        // Bildirimleri de temizle
+        NotificationManager.shared.cancelAllNotifications()
+    }
+
     /// Otomatik işlem oluşturma
     func generateRecurringTransactions() {
         let calendar = Calendar.current
