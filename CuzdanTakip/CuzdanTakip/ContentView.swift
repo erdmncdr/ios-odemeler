@@ -132,24 +132,17 @@ struct ContentView: View {
 struct CustomTabBar: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(\.colorScheme) var colorScheme
-    @Namespace private var animation
-    @State private var isAnimating = false
 
     var body: some View {
         HStack(spacing: 0) {
             ForEach(ContentView.Tab.allCases, id: \.self) { tab in
                 TabBarButton(
                     tab: tab,
-                    isSelected: selectedTab == tab,
-                    namespace: animation
+                    isSelected: selectedTab == tab
                 ) {
-                    guard !isAnimating else { return }
                     HapticManager.shared.selection()
-                    isAnimating = true
-                    selectedTab = tab
-
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                        isAnimating = false
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        selectedTab = tab
                     }
                 }
             }
@@ -205,39 +198,31 @@ struct CustomTabBar: View {
 struct TabBarButton: View {
     let tab: ContentView.Tab
     let isSelected: Bool
-    let namespace: Namespace.ID
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
             VStack(spacing: 6) {
                 ZStack {
-                    if isSelected {
-                        RoundedRectangle(cornerRadius: 15)
-                            .fill(tab.gradient)
-                            .frame(width: 50, height: 50)
-                            .matchedGeometryEffect(
-                                id: "TAB_BACKGROUND",
-                                in: namespace,
-                                properties: .frame,
-                                anchor: .center,
-                                isSource: true
-                            )
-                            .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
-                            .transition(.scale.combined(with: .opacity))
-                    }
+                    // Arka plan - basit fade animasyonu
+                    RoundedRectangle(cornerRadius: 15)
+                        .fill(tab.gradient)
+                        .frame(width: 50, height: 50)
+                        .opacity(isSelected ? 1.0 : 0.0)
+                        .scaleEffect(isSelected ? 1.0 : 0.8)
+                        .shadow(color: Color.black.opacity(isSelected ? 0.2 : 0), radius: 8, x: 0, y: 4)
 
+                    // İkon
                     Image(systemName: tab.icon)
                         .font(.system(size: 22, weight: isSelected ? .bold : .regular))
                         .foregroundColor(isSelected ? .white : .secondary)
-                        .animation(.easeInOut(duration: 0.2), value: isSelected)
                 }
 
+                // Label
                 Text(tab.rawValue)
                     .font(Theme.caption)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .foregroundColor(isSelected ? .primary : .secondary)
-                    .animation(.easeInOut(duration: 0.2), value: isSelected)
             }
             .frame(maxWidth: .infinity)
             .contentShape(Rectangle())
