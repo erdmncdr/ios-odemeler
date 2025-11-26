@@ -9,6 +9,7 @@ import Foundation
 import UserNotifications
 import SwiftUI
 
+@MainActor
 class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
 
@@ -61,7 +62,7 @@ class NotificationManager: ObservableObject {
             return
         }
 
-        let calendar = Calendar.current
+        _ = Calendar.current
         let now = Date()
 
         for transaction in transactions {
