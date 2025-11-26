@@ -133,21 +133,10 @@ struct UpcomingPaymentsView: View {
                         }
                         .padding(.trailing, 8)
 
-                        // Menü butonu - eşit boyut + badge
-                        Menu {
-                            Button {
-                                HapticManager.shared.impact(style: .medium)
-                                showingAddSheet = true
-                            } label: {
-                                Label("Ödeme Ekle", systemImage: "plus.circle.fill")
-                            }
-
-                            Button {
-                                HapticManager.shared.impact(style: .medium)
-                                showingRecurringPayments = true
-                            } label: {
-                                Label("Tekrarlayan Ödemeler (\(activeRecurringCount))", systemImage: "repeat.circle.fill")
-                            }
+                        // Ödeme ekle butonu
+                        Button {
+                            HapticManager.shared.impact(style: .medium)
+                            showingAddSheet = true
                         } label: {
                             ZStack {
                                 Circle()
@@ -268,7 +257,7 @@ struct UpcomingPaymentsView: View {
             }
         }
         .sheet(isPresented: $showingAddSheet) {
-            AddTransactionView(transactionType: .upcoming)
+            PaymentSelectionView()
         }
         .sheet(isPresented: $showingRecurringPayments) {
             RecurringPaymentsView()
@@ -394,6 +383,97 @@ struct UpcomingPaymentCard: View {
             x: 0,
             y: 5
         )
+    }
+}
+
+// Ödeme tipi seçim ekranı
+struct PaymentSelectionView: View {
+    @Environment(\.dismiss) var dismiss
+
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 20) {
+                Text("Hangi tip ödeme eklemek istersiniz?")
+                    .font(Theme.title3)
+                    .multilineTextAlignment(.center)
+                    .padding()
+
+                VStack(spacing: 16) {
+                    NavigationLink(destination: AddTransactionView(transactionType: .upcoming)) {
+                        PaymentTypeCard(
+                            title: "Tek Seferlik Ödeme",
+                            description: "Gelecekte yapılacak bir ödeme",
+                            icon: "calendar.badge.clock",
+                            gradient: Theme.primaryGradient
+                        )
+                    }
+
+                    NavigationLink(destination: RecurringPaymentsView()) {
+                        PaymentTypeCard(
+                            title: "Tekrarlayan Ödeme",
+                            description: "Düzenli olarak tekrarlanan ödemeler",
+                            icon: "repeat.circle.fill",
+                            gradient: LinearGradient(
+                                colors: [.orange, .red],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
+                        )
+                    }
+                }
+                .padding()
+
+                Spacer()
+            }
+            .navigationTitle("Ödeme Ekle")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("İptal") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+}
+
+// Ödeme tipi kartı
+struct PaymentTypeCard: View {
+    let title: String
+    let description: String
+    let icon: String
+    let gradient: LinearGradient
+
+    var body: some View {
+        HStack(spacing: 16) {
+            ZStack {
+                Circle()
+                    .fill(gradient)
+                    .frame(width: 60, height: 60)
+
+                Image(systemName: icon)
+                    .font(.system(size: 26))
+                    .foregroundColor(.white)
+            }
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(Theme.headline)
+                    .foregroundColor(.primary)
+
+                Text(description)
+                    .font(Theme.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            Spacer()
+
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+        }
+        .padding()
+        .premiumCard()
     }
 }
 
