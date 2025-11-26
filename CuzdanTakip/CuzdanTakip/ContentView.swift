@@ -16,8 +16,8 @@ struct ContentView: View {
     enum Tab: String, CaseIterable {
         case expenses = "Giderler"
         case income = "Gelirler"
-        case debts = "Borçlar"
         case upcoming = "Ödemeler"
+        case debts = "Borçlar"
 
         var icon: String {
             switch self {
@@ -58,11 +58,11 @@ struct ContentView: View {
                         IncomeView()
                             .tag(Tab.income)
 
-                        DebtsView()
-                            .tag(Tab.debts)
-
                         UpcomingPaymentsView()
                             .tag(Tab.upcoming)
+
+                        DebtsView()
+                            .tag(Tab.debts)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
 

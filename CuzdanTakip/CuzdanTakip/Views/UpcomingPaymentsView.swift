@@ -149,7 +149,7 @@ struct UpcomingPaymentsView: View {
                                 Label("Tekrarlayan Ödemeler (\(activeRecurringCount))", systemImage: "repeat.circle.fill")
                             }
                         } label: {
-                            ZStack(alignment: .topTrailing) {
+                            ZStack {
                                 Circle()
                                     .fill(Theme.primaryGradient)
                                     .frame(width: 60, height: 60)
@@ -174,7 +174,7 @@ struct UpcomingPaymentsView: View {
                                             .font(.system(size: 10, weight: .bold))
                                             .foregroundColor(.white)
                                     }
-                                    .offset(x: 8, y: -8)
+                                    .offset(x: 20, y: -20)
                                 }
                             }
                         }
