@@ -13,6 +13,7 @@ struct CuzdanTakipApp: App {
     @StateObject private var dataManager = DataManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var biometricAuth = BiometricAuthManager.shared
+    @StateObject private var appearanceManager = AppearanceManager.shared
     @State private var showNotificationPermission = false
     @Environment(\.scenePhase) var scenePhase
 
@@ -28,7 +29,8 @@ struct CuzdanTakipApp: App {
                     .environmentObject(dataManager)
                     .environmentObject(notificationManager)
                     .environmentObject(biometricAuth)
-                    .preferredColorScheme(nil) // Otomatik dark/light mode
+                    .environmentObject(appearanceManager)
+                    .preferredColorScheme(appearanceManager.colorScheme)
                     .onAppear {
                         // Bildirim izni kontrolü
                         checkNotificationPermission()

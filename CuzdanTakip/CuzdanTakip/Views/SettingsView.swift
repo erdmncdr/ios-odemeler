@@ -12,6 +12,7 @@ struct SettingsView: View {
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var biometricAuth: BiometricAuthManager
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingCategoryManager = false
     @State private var showingRecurringPayments = false
 
@@ -53,6 +54,44 @@ struct SettingsView: View {
                         } else {
                             Text("Bu cihazda biyometrik kimlik doğrulama mevcut değil")
                         }
+                    }
+
+                    // Görünüm
+                    Section {
+                        HStack(spacing: 16) {
+                            Image(systemName: appearanceManager.selectedAppearance.icon)
+                                .font(.system(size: 24))
+                                .foregroundStyle(Theme.primaryGradient)
+                                .frame(width: 40)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Görünüm")
+                                    .font(Theme.headline)
+
+                                Text(appearanceManager.selectedAppearance.displayName)
+                                    .font(Theme.caption)
+                                    .foregroundColor(.secondary)
+                            }
+
+                            Spacer()
+
+                            Picker("", selection: $appearanceManager.selectedAppearance) {
+                                ForEach(AppearanceMode.allCases, id: \.self) { mode in
+                                    HStack {
+                                        Image(systemName: mode.icon)
+                                        Text(mode.displayName)
+                                    }
+                                    .tag(mode)
+                                }
+                            }
+                            .pickerStyle(.menu)
+                            .labelsHidden()
+                        }
+                        .padding(.vertical, 8)
+                    } header: {
+                        Text("Görünüm")
+                    } footer: {
+                        Text("Uygulamanın açık veya koyu modda görünmesini seçebilirsiniz")
                     }
 
                     // Yönetim
@@ -165,4 +204,5 @@ struct SettingsRow: View {
     SettingsView()
         .environmentObject(BiometricAuthManager.shared)
         .environmentObject(DataManager.shared)
+        .environmentObject(AppearanceManager.shared)
 }
