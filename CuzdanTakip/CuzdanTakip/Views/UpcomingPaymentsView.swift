@@ -10,6 +10,7 @@ import SwiftUI
 struct UpcomingPaymentsView: View {
     @EnvironmentObject var dataManager: DataManager
     @State private var showingAddSheet = false
+    @State private var showingRecurringPayments = false
     @State private var selectedTransaction: Transaction?
     @State private var searchText = ""
     @State private var filterOptions = FilterOptions()
@@ -79,6 +80,10 @@ struct UpcomingPaymentsView: View {
         thisWeekPayments.reduce(0) { $0 + $1.amount }
     }
 
+    private var activeRecurringCount: Int {
+        dataManager.recurringTransactions.filter { $0.isActive }.count
+    }
+
     var body: some View {
         ZStack {
             ScrollView {
@@ -90,9 +95,19 @@ struct UpcomingPaymentsView: View {
                                 .font(Theme.largeTitle)
                                 .fontWeight(.bold)
 
-                            Text("Yaklaşan ödemeleriniz")
-                                .font(Theme.subheadline)
-                                .foregroundColor(.secondary)
+                            if activeRecurringCount > 0 {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "repeat.circle.fill")
+                                        .font(.system(size: 14))
+                                    Text("\(activeRecurringCount) tekrarlayan ödeme aktif")
+                                }
+                                .font(Theme.caption)
+                                .foregroundColor(.orange)
+                            } else {
+                                Text("Yaklaşan ödemeleriniz")
+                                    .font(Theme.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
                         }
 
                         Spacer()
@@ -118,9 +133,32 @@ struct UpcomingPaymentsView: View {
                         }
                         .padding(.trailing, 8)
 
-                        AddTransactionButton {
-                            HapticManager.shared.impact(style: .medium)
-                            showingAddSheet = true
+                        // Menü butonu - Ödeme ekle veya tekrarlayan ödemeler
+                        Menu {
+                            Button {
+                                HapticManager.shared.impact(style: .medium)
+                                showingAddSheet = true
+                            } label: {
+                                Label("Ödeme Ekle", systemImage: "plus.circle.fill")
+                            }
+
+                            Button {
+                                HapticManager.shared.impact(style: .medium)
+                                showingRecurringPayments = true
+                            } label: {
+                                Label("Tekrarlayan Ödemeler", systemImage: "repeat.circle.fill")
+                            }
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(Theme.primaryGradient)
+                                    .frame(width: 50, height: 50)
+                                    .shadow(color: Color.black.opacity(0.2), radius: 8, x: 0, y: 4)
+
+                                Image(systemName: "plus")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundColor(.white)
+                            }
                         }
                     }
                     .padding(.horizontal)
@@ -212,6 +250,9 @@ struct UpcomingPaymentsView: View {
         }
         .sheet(isPresented: $showingAddSheet) {
             AddTransactionView(transactionType: .upcoming)
+        }
+        .sheet(isPresented: $showingRecurringPayments) {
+            RecurringPaymentsView()
         }
         .sheet(item: $selectedTransaction) { transaction in
             TransactionDetailView(transaction: transaction)
