@@ -75,10 +75,10 @@ struct ContentView: View {
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
+                ToolbarItem(placement: .principal) {
                     Text("Cüzdan Takip")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundStyle(Theme.primaryGradient)
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundColor(.primary)
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
@@ -93,7 +93,7 @@ struct ContentView: View {
 
                             Image(systemName: "gearshape.fill")
                                 .font(.system(size: 18))
-                                .foregroundStyle(Theme.primaryGradient)
+                                .foregroundColor(.blue)
                         }
                     }
                 }
