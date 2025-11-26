@@ -210,22 +210,39 @@ struct AnalyticsView: View {
                         innerRadius: .ratio(0.5),
                         angularInset: 2
                     )
-                    .foregroundStyle(by: .value("Category", item.name))
+                    .foregroundStyle(item.color)
                     .cornerRadius(8)
                 }
-                .chartLegend(position: .bottom, spacing: 8)
+                .chartLegend(position: .bottom, spacing: 8) {
+                    // Custom legend with matching colors
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 16) {
+                            ForEach(categoryData.prefix(8)) { item in
+                                HStack(spacing: 6) {
+                                    Circle()
+                                        .fill(item.color)
+                                        .frame(width: 10, height: 10)
+                                    Text(item.name)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+                }
 
                 // En yüksek harcama
                 if let topCategory = categoryData.max(by: { $0.amount < $1.amount }) {
                     HStack {
                         Image(systemName: "crown.fill")
-                            .foregroundColor(.orange)
+                            .foregroundColor(topCategory.color)
                         Text("En çok: \(topCategory.name)")
                             .font(.system(size: 14, weight: .medium))
                         Spacer()
                         Text("₺\(topCategory.amount, specifier: "%.2f")")
                             .font(.system(size: 14, weight: .bold))
-                            .foregroundColor(.orange)
+                            .foregroundColor(topCategory.color)
                     }
                     .padding(.horizontal)
                 }
