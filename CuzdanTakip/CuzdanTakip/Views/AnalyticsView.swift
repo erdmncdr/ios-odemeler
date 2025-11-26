@@ -450,8 +450,10 @@ struct AnalyticsView: View {
             categoryDict[name, default: 0] += transaction.amount
         }
 
-        return categoryDict.map { CategoryChartData(name: $0.key, amount: $0.value) }
+        return categoryDict.map { CategoryChartData(name: $0.key, amount: $0.value, colorIndex: 0) }
             .sorted { $0.amount > $1.amount }
+            .enumerated()
+            .map { CategoryChartData(name: $1.name, amount: $1.amount, colorIndex: $0) }
     }
 
     private var trendData: [TrendChartData] {
@@ -686,10 +688,15 @@ struct CategoryChartData: Identifiable {
     let id = UUID()
     let name: String
     let amount: Double
+    let colorIndex: Int
 
     var color: Color {
-        let colors: [Color] = [.blue, .purple, .pink, .orange, .green, .red, .yellow, .teal]
-        return colors[abs(name.hashValue) % colors.count]
+        let colors: [Color] = [
+            .blue, .purple, .pink, .orange, .green,
+            .red, .yellow, .teal, .cyan, .indigo,
+            .mint, .brown
+        ]
+        return colors[colorIndex % colors.count]
     }
 }
 
