@@ -196,13 +196,14 @@ struct AddTransactionView: View {
     let transactionType: TransactionType
 
     @State private var title = ""
-    @State private var amount = ""
+    @State private var amount: Double = 0
     @State private var selectedCategory: TransactionCategory = .other
     @State private var selectedCustomCategoryId: UUID? = nil
     @State private var date = Date()
     @State private var note = ""
     @State private var hasDueDate = false
     @State private var dueDate = Date()
+    @FocusState private var isAmountFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -213,8 +214,8 @@ struct AddTransactionView: View {
                 Form {
                     Section("Bilgiler") {
                         TextField("Başlık", text: $title)
-                        TextField("Miktar", text: $amount)
-                            .keyboardType(.decimalPad)
+
+                        CurrencyTextField(title: "Miktar (₺)", value: $amount, isFocused: $isAmountFocused)
 
                         DatePicker("Tarih", selection: $date, displayedComponents: .date)
                     }
@@ -265,15 +266,15 @@ struct AddTransactionView: View {
     }
 
     private var isValid: Bool {
-        !title.isEmpty && !amount.isEmpty && Double(amount.replacingOccurrences(of: ",", with: ".")) != nil
+        !title.isEmpty && amount > 0
     }
 
     private func saveTransaction() {
-        guard let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")) else { return }
+        guard amount > 0 else { return }
 
         let transaction = Transaction(
             title: title,
-            amount: amountValue,
+            amount: amount,
             type: transactionType,
             category: selectedCategory,
             date: date,

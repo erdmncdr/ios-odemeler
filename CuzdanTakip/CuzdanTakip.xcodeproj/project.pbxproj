@@ -32,6 +32,7 @@
 		A1000023 /* LockScreenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000023 /* LockScreenView.swift */; };
 		A1000024 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024 /* SettingsView.swift */; };
 		A1000025 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025 /* AnalyticsView.swift */; };
+		A1000026 /* CurrencyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* CurrencyTextField.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -61,6 +62,7 @@
 		A2000023 /* LockScreenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LockScreenView.swift; sourceTree = "<group>"; };
 		A2000024 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000025 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
+		A2000026 /* CurrencyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyTextField.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +141,7 @@
 				A2000014 /* SearchBar.swift */,
 				A2000015 /* FilterView.swift */,
 				A2000019 /* SmartCategoryPicker.swift */,
+				A2000026 /* CurrencyTextField.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -248,6 +251,7 @@
 				A1000023 /* LockScreenView.swift in Sources */,
 				A1000024 /* SettingsView.swift in Sources */,
 				A1000025 /* AnalyticsView.swift in Sources */,
+				A1000026 /* CurrencyTextField.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
