@@ -10,6 +10,7 @@ import SwiftUI
 struct ContentView: View {
     @State private var selectedTab: Tab = .expenses
     @State private var showingSettings = false
+    @State private var showingAnalytics = false
     @Environment(\.colorScheme) var colorScheme
 
     enum Tab: String, CaseIterable {
@@ -82,24 +83,46 @@ struct ContentView: View {
                 }
 
                 ToolbarItem(placement: .topBarTrailing) {
-                    Button {
-                        HapticManager.shared.impact(style: .light)
-                        showingSettings = true
-                    } label: {
-                        ZStack {
-                            Circle()
-                                .fill(.ultraThinMaterial)
-                                .frame(width: 36, height: 36)
+                    HStack(spacing: 12) {
+                        // Analitik butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingAnalytics = true
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(.ultraThinMaterial)
+                                    .frame(width: 36, height: 36)
 
-                            Image(systemName: "gearshape.fill")
-                                .font(.system(size: 18))
-                                .foregroundColor(.blue)
+                                Image(systemName: "chart.pie.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.purple)
+                            }
+                        }
+
+                        // Ayarlar butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingSettings = true
+                        } label: {
+                            ZStack {
+                                Circle()
+                                    .fill(.ultraThinMaterial)
+                                    .frame(width: 36, height: 36)
+
+                                Image(systemName: "gearshape.fill")
+                                    .font(.system(size: 18))
+                                    .foregroundColor(.blue)
+                            }
                         }
                     }
                 }
             }
             .sheet(isPresented: $showingSettings) {
                 SettingsView()
+            }
+            .sheet(isPresented: $showingAnalytics) {
+                AnalyticsView()
             }
         }
     }
