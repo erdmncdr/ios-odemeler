@@ -592,11 +592,11 @@ struct RecurringPaymentCard: View {
             // İkon
             ZStack {
                 Circle()
-                    .fill(recurring.isActive ? LinearGradient(
+                    .fill(recurring.isActive ? AnyShapeStyle(LinearGradient(
                         colors: [.orange, .red],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
-                    ) : AnyShapeStyle(Color.gray.opacity(0.3)))
+                    )) : AnyShapeStyle(Color.gray.opacity(0.3)))
                     .frame(width: 50, height: 50)
 
                 Image(systemName: "repeat")
