@@ -12,10 +12,16 @@ struct UpcomingPaymentsView: View {
     @State private var showingAddSheet = false
     @State private var showingRecurringPayments = false
     @State private var selectedTransaction: Transaction?
+    @State private var selectedPaymentType: PaymentType = .upcoming
     @State private var searchText = ""
     @State private var filterOptions = FilterOptions()
     @State private var showingFilterSheet = false
     @Environment(\.colorScheme) var colorScheme
+
+    enum PaymentType: String, CaseIterable {
+        case upcoming = "Tek Seferlik"
+        case recurring = "Düzenli Ödemeler"
+    }
 
     private var upcomingPayments: [Transaction] {
         let allUpcoming = dataManager.getUpcomingPayments()
@@ -173,83 +179,71 @@ struct UpcomingPaymentsView: View {
                     .padding(.top, 20)
 
                     // Arama çubuğu
-                    SearchBar(text: $searchText, placeholder: "Ödeme ara...")
+                    SearchBar(text: $searchText, placeholder: selectedPaymentType == .upcoming ? "Ödeme ara..." : "Düzenli ödeme ara...")
                         .padding(.horizontal)
 
-                    // Özet kartları
-                    HStack(spacing: 15) {
-                        SummaryCard(
-                            title: "Toplam",
-                            amount: totalUpcoming,
-                            icon: "calendar.badge.clock",
-                            gradient: Theme.primaryGradient
-                        )
-
-                        SummaryCard(
-                            title: "Bu Hafta",
-                            amount: thisWeekTotal,
-                            icon: "calendar.badge.exclamationmark",
-                            gradient: LinearGradient(
-                                colors: [.orange, .red],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            )
-                        )
+                    // Segmented Picker
+                    Picker("Ödeme Tipi", selection: $selectedPaymentType) {
+                        ForEach(PaymentType.allCases, id: \.self) { type in
+                            Text(type.rawValue).tag(type)
+                        }
                     }
+                    .pickerStyle(.segmented)
                     .padding(.horizontal)
-
-                    // Bu haftaki ödemeler
-                    if !thisWeekPayments.isEmpty {
-                        VStack(spacing: 12) {
-                            SectionHeader("Bu Hafta", icon: "exclamationmark.triangle.fill")
-
-                            ForEach(thisWeekPayments) { transaction in
-                                UpcomingPaymentCard(transaction: transaction) {
-                                    markAsPaid(transaction)
-                                }
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    HapticManager.shared.impact(style: .light)
-                                    selectedTransaction = transaction
-                                }
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .opacity
-                                ))
-                            }
-                        }
+                    .onChange(of: selectedPaymentType) { _, _ in
+                        HapticManager.shared.selection()
                     }
 
-                    // Diğer ödemeler
-                    let otherPayments = upcomingPayments.filter { !thisWeekPayments.contains($0) }
-                    if !otherPayments.isEmpty {
-                        VStack(spacing: 12) {
-                            SectionHeader("Daha Sonra", icon: "calendar")
+                    // Özet kartları - seçime göre
+                    if selectedPaymentType == .upcoming {
+                        HStack(spacing: 15) {
+                            SummaryCard(
+                                title: "Toplam",
+                                amount: totalUpcoming,
+                                icon: "calendar.badge.clock",
+                                gradient: Theme.primaryGradient
+                            )
 
-                            ForEach(otherPayments) { transaction in
-                                UpcomingPaymentCard(transaction: transaction) {
-                                    markAsPaid(transaction)
-                                }
-                                .padding(.horizontal)
-                                .onTapGesture {
-                                    HapticManager.shared.impact(style: .light)
-                                    selectedTransaction = transaction
-                                }
-                                .transition(.asymmetric(
-                                    insertion: .scale.combined(with: .opacity),
-                                    removal: .opacity
-                                ))
-                            }
+                            SummaryCard(
+                                title: "Bu Hafta",
+                                amount: thisWeekTotal,
+                                icon: "calendar.badge.exclamationmark",
+                                gradient: LinearGradient(
+                                    colors: [.orange, .red],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
                         }
+                        .padding(.horizontal)
+                    } else {
+                        HStack(spacing: 15) {
+                            SummaryCard(
+                                title: "Aktif",
+                                amount: Double(activeRecurringCount),
+                                icon: "repeat.circle.fill",
+                                gradient: LinearGradient(
+                                    colors: [.orange, .red],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+
+                            SummaryCard(
+                                title: "Toplam",
+                                amount: Double(dataManager.recurringTransactions.count),
+                                icon: "list.bullet",
+                                gradient: Theme.primaryGradient
+                            )
+                        }
+                        .padding(.horizontal)
                     }
 
-                    if upcomingPayments.isEmpty {
-                        EmptyStateView(
-                            icon: "checkmark.circle",
-                            title: "Gelecek ödeme yok",
-                            message: "Yaklaşan ödemeleriniz burada görünecek"
-                        )
-                        .padding(.top, 60)
+                    // İçerik - seçime göre
+                    if selectedPaymentType == .upcoming {
+                        oneTimePaymentsList
+                    } else {
+                        recurringPaymentsList
                     }
 
                     Spacer(minLength: 100)
@@ -275,6 +269,114 @@ struct UpcomingPaymentsView: View {
         var updated = transaction
         updated.isPaid = true
         dataManager.updateTransaction(updated)
+    }
+
+    // MARK: - One-Time Payments List
+    private var oneTimePaymentsList: some View {
+        Group {
+            // Bu haftaki ödemeler
+            if !thisWeekPayments.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Bu Hafta", icon: "exclamationmark.triangle.fill")
+
+                    ForEach(thisWeekPayments) { transaction in
+                        UpcomingPaymentCard(transaction: transaction) {
+                            markAsPaid(transaction)
+                        }
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            HapticManager.shared.impact(style: .light)
+                            selectedTransaction = transaction
+                        }
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                }
+            }
+
+            // Diğer ödemeler
+            let otherPayments = upcomingPayments.filter { !thisWeekPayments.contains($0) }
+            if !otherPayments.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Daha Sonra", icon: "calendar")
+
+                    ForEach(otherPayments) { transaction in
+                        UpcomingPaymentCard(transaction: transaction) {
+                            markAsPaid(transaction)
+                        }
+                        .padding(.horizontal)
+                        .onTapGesture {
+                            HapticManager.shared.impact(style: .light)
+                            selectedTransaction = transaction
+                        }
+                        .transition(.asymmetric(
+                            insertion: .scale.combined(with: .opacity),
+                            removal: .opacity
+                        ))
+                    }
+                }
+            }
+
+            if upcomingPayments.isEmpty {
+                EmptyStateView(
+                    icon: "checkmark.circle",
+                    title: "Gelecek ödeme yok",
+                    message: "Yaklaşan ödemeleriniz burada görünecek"
+                )
+                .padding(.top, 60)
+            }
+        }
+    }
+
+    // MARK: - Recurring Payments List
+    private var recurringPaymentsList: some View {
+        Group {
+            let activeRecurring = dataManager.recurringTransactions.filter { $0.isActive }
+            let inactiveRecurring = dataManager.recurringTransactions.filter { !$0.isActive }
+
+            // Aktif tekrarlayan ödemeler
+            if !activeRecurring.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Aktif", icon: "checkmark.circle.fill")
+
+                    ForEach(activeRecurring) { recurring in
+                        RecurringPaymentCard(recurring: recurring)
+                            .padding(.horizontal)
+                            .onTapGesture {
+                                HapticManager.shared.impact(style: .light)
+                                showingRecurringPayments = true
+                            }
+                    }
+                }
+            }
+
+            // Pasif tekrarlayan ödemeler
+            if !inactiveRecurring.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Pasif", icon: "pause.circle.fill")
+
+                    ForEach(inactiveRecurring) { recurring in
+                        RecurringPaymentCard(recurring: recurring)
+                            .padding(.horizontal)
+                            .onTapGesture {
+                                HapticManager.shared.impact(style: .light)
+                                showingRecurringPayments = true
+                            }
+                    }
+                }
+            }
+
+            if dataManager.recurringTransactions.isEmpty {
+                EmptyStateView(
+                    icon: "repeat.circle",
+                    title: "Düzenli ödeme yok",
+                    message: "Düzenli ödemeleriniz burada görünecek"
+                )
+                .padding(.top, 60)
+            }
+        }
     }
 }
 
@@ -372,10 +474,11 @@ struct UpcomingPaymentCard: View {
             }
             .clipShape(RoundedRectangle(cornerRadius: 20))
         }
+        .background(.ultraThinMaterial)
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(isUrgent ? Color.red.opacity(0.6) : Color.clear, lineWidth: isUrgent ? 2 : 0)
+                .stroke(isUrgent ? Color.red.opacity(0.6) : Color.gray.opacity(0.3), lineWidth: 2)
         )
         .shadow(
             color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
@@ -474,6 +577,75 @@ struct PaymentTypeCard: View {
         }
         .padding()
         .premiumCard()
+    }
+}
+
+// Recurring Payment Card
+struct RecurringPaymentCard: View {
+    let recurring: RecurringTransaction
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        HStack(spacing: 15) {
+            // İkon
+            ZStack {
+                Circle()
+                    .fill(recurring.isActive ? LinearGradient(
+                        colors: [.orange, .red],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ) : AnyShapeStyle(Color.gray.opacity(0.3)))
+                    .frame(width: 50, height: 50)
+
+                Image(systemName: "repeat")
+                    .font(.system(size: 22))
+                    .foregroundColor(.white)
+            }
+
+            // Bilgiler
+            VStack(alignment: .leading, spacing: 4) {
+                Text(recurring.title)
+                    .font(Theme.headline)
+                    .foregroundColor(.primary)
+
+                HStack(spacing: 8) {
+                    Text(recurring.frequency.rawValue)
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+
+                    if recurring.isActive {
+                        Text("• Aktif")
+                            .font(Theme.caption)
+                            .foregroundColor(.green)
+                    } else {
+                        Text("• Pasif")
+                            .font(Theme.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+
+            Spacer()
+
+            // Miktar
+            Text(recurring.amount.toCurrency())
+                .font(Theme.headline)
+                .foregroundColor(recurring.isActive ? .orange : .gray)
+                .fontWeight(.bold)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(recurring.isActive ? Color.orange.opacity(0.5) : Color.gray.opacity(0.3), lineWidth: 2)
+        )
+        .shadow(
+            color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
+            radius: 15,
+            x: 0,
+            y: 5
+        )
     }
 }
 
