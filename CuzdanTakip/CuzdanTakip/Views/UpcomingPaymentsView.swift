@@ -91,7 +91,7 @@ struct UpcomingPaymentsView: View {
                     // Başlık
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
-                            Text("Gelecek Ödemeler")
+                            Text("Ödemeler")
                                 .font(Theme.largeTitle)
                                 .fontWeight(.bold)
 
@@ -112,35 +112,25 @@ struct UpcomingPaymentsView: View {
 
                         Spacer()
 
-                        // Filtre butonu - eşit boyut
+                        // Filtre butonu
                         Button {
                             HapticManager.shared.impact(style: .light)
                             showingFilterSheet = true
                         } label: {
                             ZStack(alignment: .topTrailing) {
-                                Circle()
-                                    .fill(Theme.primaryGradient)
-                                    .frame(width: 60, height: 60)
-                                    .shadow(color: Color.blue.opacity(0.4), radius: 15, x: 0, y: 8)
-
                                 Image(systemName: "line.3.horizontal.decrease.circle.fill")
-                                    .font(.system(size: 28, weight: .bold))
-                                    .foregroundColor(.white)
+                                    .font(.system(size: 28))
+                                    .foregroundStyle(Theme.primaryGradient)
 
                                 // Aktif filtre göstergesi
                                 if filterOptions.isActive {
                                     Circle()
                                         .fill(Color.red)
-                                        .frame(width: 12, height: 12)
-                                        .overlay(
-                                            Circle()
-                                                .stroke(Color.white, lineWidth: 2)
-                                        )
-                                        .offset(x: 4, y: -4)
+                                        .frame(width: 10, height: 10)
+                                        .offset(x: 2, y: -2)
                                 }
                             }
                         }
-                        .buttonStyle(ScaleButtonStyle())
                         .padding(.trailing, 8)
 
                         // Menü butonu - eşit boyut + badge
