@@ -405,7 +405,7 @@ struct DebtSelectionView: View {
                     NavigationLink(destination: AddTransactionView(transactionType: .debt)) {
                         DebtTypeCard(
                             title: "Borç Aldım",
-                            description: "Başkalarından aldığım borçlar",
+                            description: "",
                             icon: "creditcard.fill",
                             gradient: LinearGradient(
                                 colors: [.orange, .red],
@@ -417,8 +417,8 @@ struct DebtSelectionView: View {
 
                     NavigationLink(destination: AddTransactionView(transactionType: .lent)) {
                         DebtTypeCard(
-                            title: "Alacak",
-                            description: "Başkalarına verdiğim borçlar (alacaklarım)",
+                            title: "Borç Verdim",
+                            description: "",
                             icon: "dollarsign.circle.fill",
                             gradient: Theme.successGradient
                         )
@@ -465,9 +465,11 @@ struct DebtTypeCard: View {
                     .font(Theme.headline)
                     .foregroundColor(.primary)
 
-                Text(description)
-                    .font(Theme.caption)
-                    .foregroundColor(.secondary)
+                if !description.isEmpty {
+                    Text(description)
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
             Spacer()

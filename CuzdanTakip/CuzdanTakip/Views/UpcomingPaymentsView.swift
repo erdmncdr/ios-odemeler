@@ -496,7 +496,7 @@ struct PaymentSelectionView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                Text("Hangi tip ödeme eklemek istersiniz?")
+                Text("Fatura veya ödeme ekle")
                     .font(Theme.title3)
                     .multilineTextAlignment(.center)
                     .padding()
@@ -504,17 +504,17 @@ struct PaymentSelectionView: View {
                 VStack(spacing: 16) {
                     NavigationLink(destination: AddTransactionView(transactionType: .upcoming)) {
                         PaymentTypeCard(
-                            title: "Tek Seferlik Ödeme",
-                            description: "Gelecekte yapılacak bir ödeme",
-                            icon: "calendar.badge.clock",
+                            title: "Tek Seferlik Fatura",
+                            description: "",
+                            icon: "doc.text.fill",
                             gradient: Theme.primaryGradient
                         )
                     }
 
                     NavigationLink(destination: RecurringPaymentsView()) {
                         PaymentTypeCard(
-                            title: "Tekrarlayan Ödeme",
-                            description: "Düzenli olarak tekrarlanan ödemeler",
+                            title: "Düzenli Fatura",
+                            description: "",
                             icon: "repeat.circle.fill",
                             gradient: LinearGradient(
                                 colors: [.orange, .red],
@@ -565,9 +565,11 @@ struct PaymentTypeCard: View {
                     .font(Theme.headline)
                     .foregroundColor(.primary)
 
-                Text(description)
-                    .font(Theme.caption)
-                    .foregroundColor(.secondary)
+                if !description.isEmpty {
+                    Text(description)
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+                }
             }
 
             Spacer()
