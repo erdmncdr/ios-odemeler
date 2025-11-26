@@ -65,8 +65,13 @@ struct CurrencyTextField: View {
     }
 
     private func formatWithThousandSeparator(_ input: String) -> String {
+        // Boş input kontrolü
+        guard !input.isEmpty else { return "" }
+
         // Virgüle göre ayır
         let parts = input.split(separator: ",", maxSplits: 1)
+        guard !parts.isEmpty else { return "" }
+
         let integerPart = String(parts[0])
         let decimalPart = parts.count > 1 ? String(parts[1]) : ""
 
