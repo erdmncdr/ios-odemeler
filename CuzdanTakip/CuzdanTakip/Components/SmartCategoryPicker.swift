@@ -28,37 +28,32 @@ struct SmartCategoryPicker: View {
     var body: some View {
         VStack(spacing: 0) {
             // Seçili kategori gösterimi
-            Button {
-                // Kategori yönetimi modal'ını aç
-                HapticManager.shared.impact(style: .light)
-            } label: {
-                HStack(spacing: 12) {
-                    ZStack {
-                        Circle()
-                            .fill(selectedCategoryItem.color.opacity(0.2))
-                            .frame(width: 40, height: 40)
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(selectedCategoryItem.color.opacity(0.2))
+                        .frame(width: 40, height: 40)
 
-                        Image(systemName: selectedCategoryItem.icon)
-                            .font(.system(size: 18))
-                            .foregroundColor(selectedCategoryItem.color)
-                    }
-
-                    Text(selectedCategoryItem.name)
-                        .font(Theme.body)
-                        .foregroundColor(.primary)
-
-                    Spacer()
-
-                    Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
+                    Image(systemName: selectedCategoryItem.icon)
+                        .font(.system(size: 18))
+                        .foregroundColor(selectedCategoryItem.color)
                 }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 12)
-                        .fill(Color(.systemGray6).opacity(0.5))
-                )
+
+                Text(selectedCategoryItem.name)
+                    .font(Theme.body)
+                    .foregroundColor(.primary)
+
+                Spacer()
+
+                Text("Seçiniz")
+                    .font(Theme.caption)
+                    .foregroundColor(.secondary)
             }
+            .padding()
+            .background(
+                RoundedRectangle(cornerRadius: 12)
+                    .fill(Color(.systemGray6).opacity(0.5))
+            )
 
             // Kategori grid
             LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 12), count: 3), spacing: 12) {
@@ -155,6 +150,7 @@ struct CategoryButton: View {
                 )
             }
         }
+        .buttonStyle(.plain)
     }
 }
 
