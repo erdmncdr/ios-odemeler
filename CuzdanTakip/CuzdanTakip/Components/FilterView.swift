@@ -257,7 +257,9 @@ struct CompactFilterChip: View {
             .frame(maxWidth: .infinity)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(isSelected ? Theme.primaryGradient : (colorScheme == .dark ? Color.white.opacity(0.1) : Color.gray.opacity(0.1)))
+                    .fill(isSelected ?
+                          AnyShapeStyle(Theme.primaryGradient) :
+                          AnyShapeStyle(colorScheme == .dark ? Color.white.opacity(0.1) : Color.gray.opacity(0.1)))
             )
             .foregroundColor(isSelected ? .white : .primary)
         }
