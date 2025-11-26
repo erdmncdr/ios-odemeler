@@ -28,6 +28,7 @@ class NotificationManager: ObservableObject {
     }
 
     // Bildirim izni iste
+    @discardableResult
     func requestAuthorization() async -> Bool {
         do {
             let granted = try await UNUserNotificationCenter.current()

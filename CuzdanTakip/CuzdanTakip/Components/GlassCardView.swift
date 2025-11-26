@@ -75,7 +75,7 @@ struct TransactionCard: View {
         switch transaction.type {
         case .income:
             return .green
-        case .expense, .debt, .upcoming:
+        case .expense, .debt, .lent, .upcoming:
             return .red
         }
     }
