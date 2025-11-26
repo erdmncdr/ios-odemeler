@@ -45,23 +45,23 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                // Arka plan gradient
-                Theme.backgroundGradient(colorScheme)
+                // Arka plan gradient - optimized
+                Color(.systemBackground)
                     .ignoresSafeArea()
 
                 VStack(spacing: 0) {
-                    // Ana içerik
+                    // Ana içerik - lazy loading
                     TabView(selection: $selectedTab) {
-                        ExpensesView()
+                        LazyView(ExpensesView())
                             .tag(Tab.expenses)
 
-                        IncomeView()
+                        LazyView(IncomeView())
                             .tag(Tab.income)
 
-                        UpcomingPaymentsView()
+                        LazyView(UpcomingPaymentsView())
                             .tag(Tab.upcoming)
 
-                        DebtsView()
+                        LazyView(DebtsView())
                             .tag(Tab.debts)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
@@ -71,7 +71,6 @@ struct ContentView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 10)
                         .padding(.top, 5)
-                        .animation(.spring(response: 0.3, dampingFraction: 0.8), value: selectedTab)
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -193,6 +192,7 @@ struct CustomTabBar: View {
                         x: 0,
                         y: 10
                     )
+                    .drawingGroup()
             }
         )
     }
@@ -232,6 +232,19 @@ struct TabBarButton: View {
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
+    }
+}
+
+// Lazy loading wrapper for performance optimization
+struct LazyView<Content: View>: View {
+    let build: () -> Content
+
+    init(_ build: @autoclosure @escaping () -> Content) {
+        self.build = build
+    }
+
+    var body: Content {
+        build()
     }
 }
 
