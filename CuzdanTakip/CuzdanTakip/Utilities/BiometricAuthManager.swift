@@ -9,6 +9,7 @@ import Foundation
 import LocalAuthentication
 import SwiftUI
 
+@MainActor
 class BiometricAuthManager: ObservableObject {
     static let shared = BiometricAuthManager()
 
