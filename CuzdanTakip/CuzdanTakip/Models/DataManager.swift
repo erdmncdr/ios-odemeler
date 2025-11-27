@@ -354,7 +354,7 @@ class DataManager: ObservableObject {
         saveRecurringTransactions()
 
         // Bildirimleri de temizle
-        NotificationManager.shared.cancelAllNotifications()
+        NotificationManager.shared.clearAllNotifications()
     }
 
     /// Otomatik işlem oluşturma
