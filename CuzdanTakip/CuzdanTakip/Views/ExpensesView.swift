@@ -217,6 +217,39 @@ struct AddTransactionView: View {
 
                         CurrencyTextField(title: "Miktar (₺)", value: $amount, isFocused: $isAmountFocused)
 
+                        // Slider ile hızlı seçim
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "slider.horizontal.3")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Text("Hızlı Seçim")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                Spacer()
+
+                                Text(amount.toCurrency())
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(Theme.primaryGradient)
+                            }
+
+                            Slider(value: $amount, in: 0...20000, step: 50) {
+                                Text("Miktar")
+                            } minimumValueLabel: {
+                                Text("0")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            } maximumValueLabel: {
+                                Text("20K")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            .tint(Color.orange)
+                        }
+                        .padding(.vertical, 4)
+
                         DatePicker("Tarih", selection: $date, displayedComponents: .date)
                     }
 

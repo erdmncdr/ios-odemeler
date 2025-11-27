@@ -269,7 +269,7 @@ struct AddRecurringTransactionView: View {
     @EnvironmentObject var dataManager: DataManager
 
     @State private var title = ""
-    @State private var amount = ""
+    @State private var amount: Double = 0
     @State private var selectedCategory: TransactionCategory = .bills
     @State private var selectedCustomCategoryId: UUID?
     @State private var selectedFrequency: RecurrenceFrequency = .monthly
@@ -278,6 +278,7 @@ struct AddRecurringTransactionView: View {
     @State private var endDate = Date()
     @State private var note = ""
     @State private var notifyDays = 1
+    @FocusState private var isAmountFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -288,8 +289,41 @@ struct AddRecurringTransactionView: View {
                 Form {
                     Section("Bilgiler") {
                         TextField("Başlık (örn: Netflix)", text: $title)
-                        TextField("Miktar", text: $amount)
-                            .keyboardType(.decimalPad)
+
+                        CurrencyTextField(title: "Miktar (₺)", value: $amount, isFocused: $isAmountFocused)
+
+                        // Slider ile hızlı seçim
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "slider.horizontal.3")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Text("Hızlı Seçim")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                Spacer()
+
+                                Text(amount.toCurrency())
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(Theme.primaryGradient)
+                            }
+
+                            Slider(value: $amount, in: 0...20000, step: 50) {
+                                Text("Miktar")
+                            } minimumValueLabel: {
+                                Text("0")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            } maximumValueLabel: {
+                                Text("20K")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            .tint(Color.orange)
+                        }
+                        .padding(.vertical, 4)
                     }
 
                     Section("Kategori") {
@@ -350,17 +384,17 @@ struct AddRecurringTransactionView: View {
     }
 
     private var isValid: Bool {
-        !title.isEmpty && !amount.isEmpty && Double(amount.replacingOccurrences(of: ",", with: ".")) != nil
+        !title.isEmpty && amount > 0
     }
 
     private func saveRecurring() {
-        guard let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")) else { return }
+        guard amount > 0 else { return }
 
         HapticManager.shared.success()
 
         let recurring = RecurringTransaction(
             title: title,
-            amount: amountValue,
+            amount: amount,
             type: .upcoming,
             category: selectedCategory,
             customCategoryId: selectedCustomCategoryId,
@@ -384,7 +418,7 @@ struct EditRecurringTransactionView: View {
     @EnvironmentObject var dataManager: DataManager
 
     @State private var title = ""
-    @State private var amount = ""
+    @State private var amount: Double = 0
     @State private var selectedCategory: TransactionCategory = .bills
     @State private var selectedCustomCategoryId: UUID?
     @State private var selectedFrequency: RecurrenceFrequency = .monthly
@@ -393,6 +427,7 @@ struct EditRecurringTransactionView: View {
     @State private var endDate = Date()
     @State private var note = ""
     @State private var notifyDays = 1
+    @FocusState private var isAmountFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -403,8 +438,41 @@ struct EditRecurringTransactionView: View {
                 Form {
                     Section("Bilgiler") {
                         TextField("Başlık", text: $title)
-                        TextField("Miktar", text: $amount)
-                            .keyboardType(.decimalPad)
+
+                        CurrencyTextField(title: "Miktar (₺)", value: $amount, isFocused: $isAmountFocused)
+
+                        // Slider ile hızlı seçim
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Image(systemName: "slider.horizontal.3")
+                                    .foregroundColor(.secondary)
+                                    .font(.caption)
+                                Text("Hızlı Seçim")
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+
+                                Spacer()
+
+                                Text(amount.toCurrency())
+                                    .font(.caption)
+                                    .fontWeight(.semibold)
+                                    .foregroundStyle(Theme.primaryGradient)
+                            }
+
+                            Slider(value: $amount, in: 0...20000, step: 50) {
+                                Text("Miktar")
+                            } minimumValueLabel: {
+                                Text("0")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            } maximumValueLabel: {
+                                Text("20K")
+                                    .font(.caption2)
+                                    .foregroundColor(.secondary)
+                            }
+                            .tint(Color.orange)
+                        }
+                        .padding(.vertical, 4)
                     }
 
                     Section("Kategori") {
@@ -463,7 +531,7 @@ struct EditRecurringTransactionView: View {
             }
             .onAppear {
                 title = recurring.title
-                amount = String(recurring.amount)
+                amount = recurring.amount
                 selectedCategory = recurring.category
                 selectedCustomCategoryId = recurring.customCategoryId
                 selectedFrequency = recurring.frequency
@@ -477,17 +545,17 @@ struct EditRecurringTransactionView: View {
     }
 
     private var isValid: Bool {
-        !title.isEmpty && !amount.isEmpty && Double(amount.replacingOccurrences(of: ",", with: ".")) != nil
+        !title.isEmpty && amount > 0
     }
 
     private func updateRecurring() {
-        guard let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")) else { return }
+        guard amount > 0 else { return }
 
         HapticManager.shared.success()
 
         var updated = recurring
         updated.title = title
-        updated.amount = amountValue
+        updated.amount = amount
         updated.category = selectedCategory
         updated.customCategoryId = selectedCustomCategoryId
         updated.frequency = selectedFrequency
