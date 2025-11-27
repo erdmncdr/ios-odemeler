@@ -33,6 +33,7 @@
 		A1000024 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000024 /* SettingsView.swift */; };
 		A1000025 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025 /* AnalyticsView.swift */; };
 		A1000026 /* CurrencyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* CurrencyTextField.swift */; };
+		A1000027 /* AppearanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000027 /* AppearanceManager.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -63,6 +64,7 @@
 		A2000024 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		A2000025 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		A2000026 /* CurrencyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyTextField.swift; sourceTree = "<group>"; };
+		A2000027 /* AppearanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceManager.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -153,6 +155,7 @@
 				A2000012 /* NotificationManager.swift */,
 				A2000013 /* HapticManager.swift */,
 				A2000022 /* BiometricAuthManager.swift */,
+				A2000027 /* AppearanceManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -252,6 +255,7 @@
 				A1000024 /* SettingsView.swift in Sources */,
 				A1000025 /* AnalyticsView.swift in Sources */,
 				A1000026 /* CurrencyTextField.swift in Sources */,
+				A1000027 /* AppearanceManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -388,6 +392,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cüzdan Takip v2";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Uygulamanıza güvenli erişim için Face ID kullanılacak";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -417,6 +422,7 @@
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Cüzdan Takip v2";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "Uygulamanıza güvenli erişim için Face ID kullanılacak";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
