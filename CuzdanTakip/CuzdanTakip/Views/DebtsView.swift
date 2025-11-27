@@ -368,7 +368,12 @@ struct DebtsView: View {
         dataManager.updateTransaction(updated)
 
         // Gelir/gider kaydı oluştur
-        if createTransaction {
+        // Eğer nakit akışı takibi yapıldıysa (trackedInCashFlow == true),
+        // otomatik olarak gelir/gider kaydı oluştur
+        // Yapılmadıysa, kullanıcıya sor (createTransaction parametresi)
+        let shouldCreateTransaction = transaction.trackedInCashFlow == true || createTransaction
+
+        if shouldCreateTransaction {
             let newTransaction = Transaction(
                 title: transaction.title,
                 amount: transaction.amount,

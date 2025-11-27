@@ -203,6 +203,7 @@ struct AddTransactionView: View {
     @State private var note = ""
     @State private var hasDueDate = false
     @State private var dueDate = Date()
+    @State private var trackInCashFlow = false // Borç/alacak için nakit akışı takibi
     @FocusState private var isAmountFocused: Bool
 
     var body: some View {
@@ -260,6 +261,42 @@ struct AddTransactionView: View {
                         )
                     }
 
+                    if transactionType == .debt || transactionType == .lent {
+                        Section {
+                            VStack(alignment: .leading, spacing: 12) {
+                                Toggle(isOn: $trackInCashFlow) {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(transactionType == .debt ? "Gelir olarak da kaydet" : "Gider olarak da kaydet")
+                                            .font(Theme.body)
+
+                                        Text(transactionType == .debt ?
+                                            "Para girişi olduğu için gelire eklensin mi?" :
+                                            "Para çıkışı olduğu için gidere eklensin mi?")
+                                            .font(Theme.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                }
+                                .tint(.orange)
+
+                                if trackInCashFlow {
+                                    HStack(spacing: 8) {
+                                        Image(systemName: "info.circle.fill")
+                                            .foregroundColor(.orange)
+                                            .font(.caption)
+                                        Text(transactionType == .debt ?
+                                            "Ödeme yaptığınızda gider olarak da kaydedilecek" :
+                                            "Geri aldığınızda gelir olarak da kaydedilecek")
+                                            .font(Theme.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .padding(.top, 4)
+                                }
+                            }
+                        } header: {
+                            Text("Nakit Akışı Takibi")
+                        }
+                    }
+
                     if transactionType == .debt || transactionType == .upcoming {
                         Section("Son Ödeme Tarihi") {
                             Toggle("Son ödeme tarihi var", isOn: $hasDueDate)
@@ -305,6 +342,7 @@ struct AddTransactionView: View {
     private func saveTransaction() {
         guard amount > 0 else { return }
 
+        // Borç/alacak işlemi oluştur
         let transaction = Transaction(
             title: title,
             amount: amount,
@@ -314,10 +352,29 @@ struct AddTransactionView: View {
             note: note,
             isPaid: transactionType == .expense || transactionType == .income,
             dueDate: hasDueDate ? dueDate : nil,
-            customCategoryId: selectedCustomCategoryId
+            customCategoryId: selectedCustomCategoryId,
+            trackedInCashFlow: (transactionType == .debt || transactionType == .lent) ? trackInCashFlow : nil
         )
 
         dataManager.addTransaction(transaction)
+
+        // Eğer nakit akışı takibi aktifse, gelir/gider kaydı da oluştur
+        if (transactionType == .debt || transactionType == .lent) && trackInCashFlow {
+            let cashFlowTransaction = Transaction(
+                title: title,
+                amount: amount,
+                type: transactionType == .debt ? .income : .expense,
+                category: selectedCategory,
+                date: date,
+                note: transactionType == .debt ?
+                    "Borç girişi: \(title)" :
+                    "Borç verme: \(title)",
+                isPaid: true,
+                customCategoryId: selectedCustomCategoryId
+            )
+            dataManager.addTransaction(cashFlowTransaction)
+        }
+
         dismiss()
     }
 }
