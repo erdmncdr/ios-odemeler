@@ -110,12 +110,14 @@ class DataManager: ObservableObject {
             .filter { $0.type == .expense && $0.isPaid }
             .reduce(0) { $0 + $1.amount }
 
+        // Sadece nakit akışı takibi YAPILMAYAN borçları bakiyeye dahil et
+        // (Yapılanlar zaten income/expense'de sayılıyor)
         let debts = transactions
-            .filter { $0.type == .debt && !$0.isPaid }
+            .filter { $0.type == .debt && !$0.isPaid && $0.trackedInCashFlow != true }
             .reduce(0) { $0 + $1.amount }
 
         let lent = transactions
-            .filter { $0.type == .lent && !$0.isPaid }
+            .filter { $0.type == .lent && !$0.isPaid && $0.trackedInCashFlow != true }
             .reduce(0) { $0 + $1.amount }
 
         let upcoming = getUpcomingPayments()
