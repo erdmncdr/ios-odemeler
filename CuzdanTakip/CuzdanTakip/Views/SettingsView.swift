@@ -199,7 +199,7 @@ struct SettingsView: View {
             .alert("Tüm Verileri Sil?", isPresented: $showingClearDataAlert) {
                 Button("İptal", role: .cancel) { }
                 Button("Sil", role: .destructive) {
-                    HapticManager.shared.notification(type: .warning)
+                    HapticManager.shared.warning()
                     dataManager.clearAllData()
                 }
             } message: {
