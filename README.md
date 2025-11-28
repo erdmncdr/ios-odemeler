@@ -1,4 +1,4 @@
-# Cüzdan Takip v2 - Premium iOS Uygulaması
+# FinansPro - Premium iOS Uygulaması
 
 Modern ve şık bir finans takip uygulaması. Liquid glass teması ile premium kullanıcı deneyimi sunar.
 
@@ -167,7 +167,7 @@ iPhone'da şu hata görünebilir:
 1. Uygulama ilk açılışta bildirim izni isteyecek
 2. **"İzin Ver"** seçin
 3. iOS ayarlarından da kontrol edin:
-   - **Ayarlar → Bildirimler → Cüzdan Takip v2**
+   - **Ayarlar → Bildirimler → FinansPro**
    - Tüm izinleri açık olduğundan emin olun
 
 ## 🔧 Sorun Giderme
