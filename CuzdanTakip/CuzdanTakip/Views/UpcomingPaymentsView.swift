@@ -191,6 +191,8 @@ struct UpcomingPaymentsView: View {
                     .pickerStyle(.segmented)
                     .padding(.horizontal)
                     .onChange(of: selectedPaymentType) { _, _ in
+                        // Klavyeyi kapat
+                        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
                         HapticManager.shared.selection()
                     }
 
