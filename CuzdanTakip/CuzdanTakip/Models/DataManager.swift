@@ -444,7 +444,7 @@ class DataManager: ObservableObject {
             date: Date()
         ))
 
-        // Borçlar
+        // Borçlar (Nakit akışı takibi KAPALI - bakiyeyi etkiler)
         transactions.append(Transaction(
             title: "Kredi Kartı Borcu",
             amount: 3500,
@@ -452,40 +452,69 @@ class DataManager: ObservableObject {
             category: .bills,
             date: calendar.date(byAdding: .day, value: -10, to: Date()) ?? Date(),
             isPaid: false,
-            dueDate: calendar.date(byAdding: .day, value: 15, to: Date())
+            dueDate: calendar.date(byAdding: .day, value: 15, to: Date()),
+            trackedInCashFlow: false
         ))
 
+        // Borç (Nakit akışı takibi AÇIK - gelir olarak da kaydedildi)
         transactions.append(Transaction(
-            title: "Arkadaşa Borç",
-            amount: 500,
+            title: "Arkadaştan Borç Aldım",
+            amount: 2000,
             type: .debt,
             category: .other,
             date: calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
+            note: "Gelir olarak da kaydedildi, bakiyeyi etkilemez",
             isPaid: false,
-            dueDate: calendar.date(byAdding: .day, value: 10, to: Date())
+            dueDate: calendar.date(byAdding: .day, value: 10, to: Date()),
+            trackedInCashFlow: true
         ))
 
-        // Verilen borçlar (Bize borçlu olanlar)
+        // Bu borç için gelir kaydı (nakit akışı takibi)
+        transactions.append(Transaction(
+            title: "Arkadaştan Borç Aldım",
+            amount: 2000,
+            type: .income,
+            category: .other,
+            date: calendar.date(byAdding: .day, value: -7, to: Date()) ?? Date(),
+            note: "Borç girişi: Arkadaştan Borç Aldım",
+            isPaid: true
+        ))
+
+        // Verilen borçlar (Nakit akışı takibi KAPALI - bakiyeyi etkiler)
         transactions.append(Transaction(
             title: "Mehmet'e Borç Verdim",
             amount: 1000,
             type: .lent,
             category: .other,
             date: calendar.date(byAdding: .day, value: -12, to: Date()) ?? Date(),
-            note: "Acil ihtiyacı için verdim",
+            note: "Gider olarak kaydedilmedi",
             isPaid: false,
-            dueDate: calendar.date(byAdding: .day, value: 18, to: Date())
+            dueDate: calendar.date(byAdding: .day, value: 18, to: Date()),
+            trackedInCashFlow: false
         ))
 
+        // Verilen borç (Nakit akışı takibi AÇIK - gider olarak da kaydedildi)
         transactions.append(Transaction(
             title: "İş Arkadaşına Ödünç",
             amount: 750,
             type: .lent,
             category: .other,
             date: calendar.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
-            note: "Hafta sonuna kadar geri ödeyecek",
+            note: "Gider olarak da kaydedildi, bakiyeyi etkilemez",
             isPaid: false,
-            dueDate: calendar.date(byAdding: .day, value: 2, to: Date())
+            dueDate: calendar.date(byAdding: .day, value: 2, to: Date()),
+            trackedInCashFlow: true
+        ))
+
+        // Bu borç için gider kaydı (nakit akışı takibi)
+        transactions.append(Transaction(
+            title: "İş Arkadaşına Ödünç",
+            amount: 750,
+            type: .expense,
+            category: .other,
+            date: calendar.date(byAdding: .day, value: -5, to: Date()) ?? Date(),
+            note: "Borç verme: İş Arkadaşına Ödünç",
+            isPaid: true
         ))
 
         // Gelecek ödemeler
