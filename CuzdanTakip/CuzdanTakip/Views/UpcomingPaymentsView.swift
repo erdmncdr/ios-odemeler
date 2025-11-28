@@ -179,7 +179,7 @@ struct UpcomingPaymentsView: View {
                     .padding(.top, 20)
 
                     // Arama çubuğu
-                    SearchBar(text: $searchText, placeholder: selectedPaymentType == .upcoming ? "Ödeme ara..." : "Düzenli ödeme ara...")
+                    SearchBar(text: $searchText, placeholder: selectedPaymentType == .upcoming ? "Ödeme ara..." : "Tekrarlayan ödeme ara...")
                         .padding(.horizontal)
 
                     // Segmented Picker
@@ -371,8 +371,8 @@ struct UpcomingPaymentsView: View {
             if dataManager.recurringTransactions.isEmpty {
                 EmptyStateView(
                     icon: "repeat.circle",
-                    title: "Düzenli ödeme yok",
-                    message: "Düzenli ödemeleriniz burada görünecek"
+                    title: "Tekrarlayan ödeme yok",
+                    message: "Tekrarlayan ödemeleriniz burada görünecek"
                 )
                 .padding(.top, 60)
             }
@@ -504,7 +504,7 @@ struct PaymentSelectionView: View {
                 VStack(spacing: 16) {
                     NavigationLink(destination: AddTransactionView(transactionType: .upcoming)) {
                         PaymentTypeCard(
-                            title: "Tek Seferlik Fatura",
+                            title: "Tek Seferlik Ödeme",
                             description: "",
                             icon: "doc.text.fill",
                             gradient: Theme.primaryGradient
@@ -513,7 +513,7 @@ struct PaymentSelectionView: View {
 
                     NavigationLink(destination: RecurringPaymentsView()) {
                         PaymentTypeCard(
-                            title: "Düzenli Fatura",
+                            title: "Tekrarlayan Ödeme",
                             description: "",
                             icon: "repeat.circle.fill",
                             gradient: LinearGradient(
