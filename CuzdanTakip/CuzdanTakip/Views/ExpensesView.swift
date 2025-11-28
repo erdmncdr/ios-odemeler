@@ -254,13 +254,7 @@ struct AddTransactionView: View {
                         DatePicker("Tarih", selection: $date, displayedComponents: .date)
                     }
 
-                    Section("Kategori") {
-                        SmartCategoryPicker(
-                            selectedStandardCategory: $selectedCategory,
-                            selectedCustomCategoryId: $selectedCustomCategoryId
-                        )
-                    }
-
+                    // Nakit akışı takibi - Miktar girişinden hemen sonra
                     if transactionType == .debt || transactionType == .lent {
                         Section {
                             VStack(alignment: .leading, spacing: 12) {
@@ -295,6 +289,13 @@ struct AddTransactionView: View {
                         } header: {
                             Text("Nakit Akışı Takibi")
                         }
+                    }
+
+                    Section("Kategori") {
+                        SmartCategoryPicker(
+                            selectedStandardCategory: $selectedCategory,
+                            selectedCustomCategoryId: $selectedCustomCategoryId
+                        )
                     }
 
                     if transactionType == .debt || transactionType == .upcoming {
