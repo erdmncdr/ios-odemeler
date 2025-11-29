@@ -1,6 +1,6 @@
 //
 //  BiometricAuthManager.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Biyometrik kimlik doğrulama yöneticisi
 //

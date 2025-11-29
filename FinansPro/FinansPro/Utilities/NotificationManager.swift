@@ -170,6 +170,88 @@ class NotificationManager: ObservableObject {
         UNUserNotificationCenter.current().add(request)
     }
 
+    // Taksit ödemeleri için bildirim planla
+    func scheduleInstallmentNotification(
+        paymentTitle: String,
+        installmentNumber: Int,
+        amount: Double,
+        dueDate: Date
+    ) {
+        guard isAuthorized else { return }
+
+        let calendar = Calendar.current
+        let now = Date()
+
+        // Sadece gelecekteki tarihlere bildirim oluştur
+        guard dueDate > now else { return }
+
+        // 3 gün önce bildirim
+        if let threeDaysBefore = calendar.date(byAdding: .day, value: -3, to: dueDate),
+           threeDaysBefore > now {
+            scheduleInstallmentNotificationAt(
+                date: threeDaysBefore,
+                title: "Yaklaşan Taksit",
+                body: "\(paymentTitle) - \(installmentNumber). taksit 3 gün içinde: \(amount.toCurrency())",
+                identifier: "installment-3-\(installmentNumber)-\(UUID().uuidString)"
+            )
+        }
+
+        // 1 gün önce bildirim
+        if let oneDayBefore = calendar.date(byAdding: .day, value: -1, to: dueDate),
+           oneDayBefore > now {
+            scheduleInstallmentNotificationAt(
+                date: oneDayBefore,
+                title: "Yarın Taksit Var!",
+                body: "\(paymentTitle) - \(installmentNumber). taksit: \(amount.toCurrency())",
+                identifier: "installment-1-\(installmentNumber)-\(UUID().uuidString)"
+            )
+        }
+
+        // Taksit günü bildirim
+        if dueDate > now {
+            scheduleInstallmentNotificationAt(
+                date: dueDate,
+                title: "Bugün Taksit Günü!",
+                body: "\(paymentTitle) - \(installmentNumber). taksit ödenmeli: \(amount.toCurrency())",
+                identifier: "installment-0-\(installmentNumber)-\(UUID().uuidString)"
+            )
+        }
+    }
+
+    // Belirli bir tarihte taksit bildirimi planla
+    private func scheduleInstallmentNotificationAt(
+        date: Date,
+        title: String,
+        body: String,
+        identifier: String
+    ) {
+        let calendar = Calendar.current
+        guard date > Date() else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.badge = 1
+        content.categoryIdentifier = "INSTALLMENT_REMINDER"
+
+        // Bildirim zamanını ayarla (sabah 9:00)
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        dateComponents.hour = 9
+        dateComponents.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Taksit bildirimi ekleme hatası: \(error.localizedDescription)")
+            } else {
+                print("Taksit bildirimi planlandı: \(title) - \(date)")
+            }
+        }
+    }
+
     // Planlanmış bildirimleri listele (debug için)
     func printPendingNotifications() {
         UNUserNotificationCenter.current().getPendingNotificationRequests { requests in

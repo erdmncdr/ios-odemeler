@@ -1,6 +1,6 @@
 //
 //  LockScreenView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Biyometrik kilit ekranı
 //
@@ -39,7 +39,7 @@ struct LockScreenView: View {
                             .foregroundColor(.white)
                     }
 
-                    Text("Cüzdan Takip")
+                    Text("FinansPro")
                         .font(.system(size: 32, weight: .bold))
                         .foregroundColor(.white)
 

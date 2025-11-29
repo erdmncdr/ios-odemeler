@@ -1,6 +1,6 @@
 //
 //  CustomCategory.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Kullanıcı tanımlı özel kategoriler
 //

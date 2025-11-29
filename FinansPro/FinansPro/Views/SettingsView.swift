@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Ayarlar ekranı
 //
@@ -172,7 +172,7 @@ struct SettingsView: View {
 
                         SettingsRow(
                             icon: "star.fill",
-                            title: "Cüzdan Takip v2",
+                            title: "FinansPro",
                             subtitle: "Premium finans yönetimi",
                             color: .yellow
                         )

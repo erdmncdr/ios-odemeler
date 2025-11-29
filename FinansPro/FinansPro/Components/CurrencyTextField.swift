@@ -1,6 +1,6 @@
 //
 //  CurrencyTextField.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Türk Lirası formatında para girişi
 //  Format: 1.500,50 (binlik ayraç: nokta, ondalık: virgül)

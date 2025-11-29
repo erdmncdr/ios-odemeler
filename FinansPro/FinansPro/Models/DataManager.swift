@@ -15,15 +15,18 @@ class DataManager: ObservableObject {
     @Published var transactions: [Transaction] = []
     @Published var customCategories: [CustomCategory] = []
     @Published var recurringTransactions: [RecurringTransaction] = []
+    @Published var installmentPayments: [InstallmentPayment] = []
 
     private let saveKey = "SavedTransactions"
     private let customCategoriesKey = "CustomCategories"
     private let recurringKey = "RecurringTransactions"
+    private let installmentsKey = "InstallmentPayments"
 
     init() {
         loadData()
         loadCustomCategories()
         loadRecurringTransactions()
+        loadInstallmentPayments()
         // Demo data ekle (ilk açılışta)
         if transactions.isEmpty {
             addDemoData()
@@ -539,5 +542,132 @@ class DataManager: ObservableObject {
         ))
 
         saveData()
+    }
+
+    // MARK: - Taksitli Ödemeler
+
+    /// Taksitli ödeme ekle
+    func addInstallmentPayment(_ payment: InstallmentPayment) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            installmentPayments.append(payment)
+        }
+        saveInstallmentPayments()
+        scheduleInstallmentNotifications()
+    }
+
+    /// Taksitli ödeme güncelle
+    func updateInstallmentPayment(_ payment: InstallmentPayment) {
+        if let index = installmentPayments.firstIndex(where: { $0.id == payment.id }) {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                installmentPayments[index] = payment
+            }
+            saveInstallmentPayments()
+            scheduleInstallmentNotifications()
+        }
+    }
+
+    /// Taksitli ödeme sil
+    func deleteInstallmentPayment(_ payment: InstallmentPayment) {
+        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+            installmentPayments.removeAll { $0.id == payment.id }
+        }
+        saveInstallmentPayments()
+        scheduleInstallmentNotifications()
+    }
+
+    /// Taksiti ödendi olarak işaretle
+    func markInstallmentAsPaid(paymentId: UUID, installmentId: UUID) {
+        if let paymentIndex = installmentPayments.firstIndex(where: { $0.id == paymentId }) {
+            var payment = installmentPayments[paymentIndex]
+            payment.markInstallmentAsPaid(installmentId)
+            installmentPayments[paymentIndex] = payment
+            saveInstallmentPayments()
+            scheduleInstallmentNotifications()
+        }
+    }
+
+    /// Taksit ödemesini geri al
+    func markInstallmentAsUnpaid(paymentId: UUID, installmentId: UUID) {
+        if let paymentIndex = installmentPayments.firstIndex(where: { $0.id == paymentId }) {
+            var payment = installmentPayments[paymentIndex]
+            payment.markInstallmentAsUnpaid(installmentId)
+            installmentPayments[paymentIndex] = payment
+            saveInstallmentPayments()
+            scheduleInstallmentNotifications()
+        }
+    }
+
+    /// Aktif (tamamlanmamış) taksitli ödemeleri getir
+    func getActiveInstallmentPayments() -> [InstallmentPayment] {
+        installmentPayments.filter { !$0.isCompleted }
+            .sorted { $0.startDate < $1.startDate }
+    }
+
+    /// Tamamlanmış taksitli ödemeleri getir
+    func getCompletedInstallmentPayments() -> [InstallmentPayment] {
+        installmentPayments.filter { $0.isCompleted }
+            .sorted { $0.startDate > $1.startDate }
+    }
+
+    /// Yaklaşan taksitleri getir (7 gün içinde)
+    func getUpcomingInstallments() -> [(payment: InstallmentPayment, installment: Installment)] {
+        var result: [(payment: InstallmentPayment, installment: Installment)] = []
+
+        for payment in installmentPayments.filter({ !$0.isCompleted }) {
+            for installment in payment.upcomingInstallments {
+                result.append((payment, installment))
+            }
+        }
+
+        return result.sorted { $0.installment.dueDate < $1.installment.dueDate }
+    }
+
+    /// Gecikmiş taksitleri getir
+    func getOverdueInstallments() -> [(payment: InstallmentPayment, installment: Installment)] {
+        var result: [(payment: InstallmentPayment, installment: Installment)] = []
+
+        for payment in installmentPayments.filter({ !$0.isCompleted }) {
+            for installment in payment.overdueInstallments {
+                result.append((payment, installment))
+            }
+        }
+
+        return result.sorted { $0.installment.dueDate < $1.installment.dueDate }
+    }
+
+    /// Taksitler için bildirim planla
+    private func scheduleInstallmentNotifications() {
+        let upcomingInstallments = getUpcomingInstallments()
+
+        // Her taksit için bildirim oluştur
+        for (payment, installment) in upcomingInstallments {
+            // Bildirimi planla (3 gün önce, 1 gün önce, taksit günü)
+            NotificationManager.shared.scheduleInstallmentNotification(
+                paymentTitle: payment.title,
+                installmentNumber: installment.installmentNumber,
+                amount: installment.amount,
+                dueDate: installment.dueDate
+            )
+        }
+    }
+
+    // MARK: - Taksitli Ödemeler Persistence
+
+    /// Taksitli ödemeleri yükle
+    private func loadInstallmentPayments() {
+        if let data = UserDefaults.standard.data(forKey: installmentsKey) {
+            let decoder = JSONDecoder()
+            if let decoded = try? decoder.decode([InstallmentPayment].self, from: data) {
+                installmentPayments = decoded
+            }
+        }
+    }
+
+    /// Taksitli ödemeleri kaydet
+    private func saveInstallmentPayments() {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(installmentPayments) {
+            UserDefaults.standard.set(encoded, forKey: installmentsKey)
+        }
     }
 }

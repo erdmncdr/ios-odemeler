@@ -76,7 +76,7 @@ struct ContentView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .principal) {
-                    Text("Cüzdan Takip")
+                    Text("FinansPro")
                         .font(.system(size: 20, weight: .bold))
                         .foregroundColor(.primary)
                 }

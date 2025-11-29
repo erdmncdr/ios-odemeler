@@ -1,6 +1,6 @@
 //
 //  AppearanceManager.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Görünüm (Dark/Light mode) yöneticisi
 //

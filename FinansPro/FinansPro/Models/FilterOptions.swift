@@ -1,6 +1,6 @@
 //
 //  FilterOptions.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Filtreleme seçenekleri
 //

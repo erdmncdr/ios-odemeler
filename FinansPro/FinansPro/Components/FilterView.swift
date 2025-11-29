@@ -1,6 +1,6 @@
 //
 //  FilterView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Akıllı filtreleme komponenti
 //

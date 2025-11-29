@@ -1,6 +1,6 @@
 //
 //  SmartCategoryPicker.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Akıllı kategori seçici - Hem varsayılan hem özel kategorileri destekler
 //
