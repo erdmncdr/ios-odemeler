@@ -16,17 +16,25 @@ struct AddInstallmentPaymentView: View {
     @State private var installmentCount = 3
     @State private var startDate = Date()
     @State private var frequency: RecurrenceFrequency = .monthly
-    @State private var category: TransactionCategory = .bills
+    @State private var selectedStandardCategory: TransactionCategory = .bills
+    @State private var selectedCustomCategoryId: UUID? = nil
     @State private var note = ""
-    @State private var selectedCategoryItem: CategoryItem = .standard(.bills)
     @State private var showingCategoryPicker = false
 
     private let installmentOptions = [2, 3, 4, 6, 9, 12, 18, 24, 36]
 
+    private var selectedCategoryItem: CategoryItem {
+        if let customId = selectedCustomCategoryId,
+           let customCategory = dataManager.customCategories.first(where: { $0.id == customId }) {
+            return .custom(customCategory)
+        }
+        return .standard(selectedStandardCategory)
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.background.ignoresSafeArea()
+                Color(.systemBackground).ignoresSafeArea()
 
                 ScrollView {
                     VStack(spacing: 24) {
@@ -235,9 +243,10 @@ struct AddInstallmentPaymentView: View {
             }
             .sheet(isPresented: $showingCategoryPicker) {
                 SmartCategoryPicker(
-                    selectedCategory: $selectedCategoryItem,
-                    transactionType: .expense
+                    selectedStandardCategory: $selectedStandardCategory,
+                    selectedCustomCategoryId: $selectedCustomCategoryId
                 )
+                .presentationDetents([.medium, .large])
             }
         }
     }
@@ -252,25 +261,12 @@ struct AddInstallmentPaymentView: View {
         guard isValid else { return }
         guard let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")) else { return }
 
-        // Kategori bilgisini ayarla
-        let finalCategory: TransactionCategory
-        let customCategoryId: UUID?
-
-        switch selectedCategoryItem {
-        case .standard(let cat):
-            finalCategory = cat
-            customCategoryId = nil
-        case .custom(let custom):
-            finalCategory = .other
-            customCategoryId = custom.id
-        }
-
         let payment = InstallmentPayment(
             title: title,
             totalAmount: amountValue,
             installmentCount: installmentCount,
-            category: finalCategory,
-            customCategoryId: customCategoryId,
+            category: selectedStandardCategory,
+            customCategoryId: selectedCustomCategoryId,
             startDate: startDate,
             frequency: frequency,
             note: note
