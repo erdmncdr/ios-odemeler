@@ -697,8 +697,8 @@ struct InstallmentPaymentListCard: View {
             // İkon
             ZStack {
                 Circle()
-                    .fill(payment.isCompleted ? Color.green.opacity(0.3) : LinearGradient(
-                        colors: [.purple, .blue],
+                    .fill(LinearGradient(
+                        colors: payment.isCompleted ? [.green.opacity(0.3), .green.opacity(0.3)] : [.purple, .blue],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     ))
