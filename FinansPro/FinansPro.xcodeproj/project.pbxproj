@@ -34,6 +34,7 @@
 		A1000025 /* AnalyticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000025 /* AnalyticsView.swift */; };
 		A1000026 /* CurrencyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* CurrencyTextField.swift */; };
 		A1000027 /* AppearanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000027 /* AppearanceManager.swift */; };
+		A1000028 /* InstallmentPayment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000028 /* InstallmentPayment.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -65,6 +66,7 @@
 		A2000025 /* AnalyticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsView.swift; sourceTree = "<group>"; };
 		A2000026 /* CurrencyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyTextField.swift; sourceTree = "<group>"; };
 		A2000027 /* AppearanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceManager.swift; sourceTree = "<group>"; };
+		A2000028 /* InstallmentPayment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallmentPayment.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -116,6 +118,7 @@
 				A2000016 /* FilterOptions.swift */,
 				A2000017 /* CustomCategory.swift */,
 				A2000020 /* RecurringTransaction.swift */,
+				A2000028 /* InstallmentPayment.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -256,6 +259,7 @@
 				A1000025 /* AnalyticsView.swift in Sources */,
 				A1000026 /* CurrencyTextField.swift in Sources */,
 				A1000027 /* AppearanceManager.swift in Sources */,
+				A1000028 /* InstallmentPayment.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
