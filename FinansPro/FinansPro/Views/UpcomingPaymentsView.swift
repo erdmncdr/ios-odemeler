@@ -746,9 +746,8 @@ struct InstallmentPaymentListCard: View {
 
                         RoundedRectangle(cornerRadius: 4)
                             .fill(
-                                payment.isCompleted ? Color.green :
                                 LinearGradient(
-                                    colors: [.purple, .blue],
+                                    colors: payment.isCompleted ? [.green, .green] : [.purple, .blue],
                                     startPoint: .leading,
                                     endPoint: .trailing
                                 )
