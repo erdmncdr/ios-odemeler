@@ -1,6 +1,6 @@
 //
 //  RecurringTransaction.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Tekrarlayan işlemler için model
 //

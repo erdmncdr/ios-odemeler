@@ -1,15 +1,15 @@
 //
-//  CuzdanTakipApp.swift
-//  CuzdanTakip
+//  FinansProApp.swift
+//  FinansPro
 //
-//  Premium Finance Tracking App - Cüzdan Takip v2
+//  Premium Finance Tracking App - FinansPro
 //
 
 import SwiftUI
 import UserNotifications
 
 @main
-struct CuzdanTakipApp: App {
+struct FinansProApp: App {
     @StateObject private var dataManager = DataManager.shared
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var biometricAuth = BiometricAuthManager.shared

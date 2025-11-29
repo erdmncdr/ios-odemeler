@@ -1,6 +1,6 @@
 //
 //  SearchBar.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Arama çubuğu komponenti
 //

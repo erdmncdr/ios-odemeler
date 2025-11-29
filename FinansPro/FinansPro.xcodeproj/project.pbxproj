@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A1000001 /* CuzdanTakipApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* CuzdanTakipApp.swift */; };
+		A1000001 /* FinansProApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000001 /* FinansProApp.swift */; };
 		A1000002 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000002 /* ContentView.swift */; };
 		A1000003 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A2000003 /* Assets.xcassets */; };
 		A1000004 /* TransactionModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000004 /* TransactionModel.swift */; };
@@ -37,8 +37,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		A3000001 /* CuzdanTakip.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CuzdanTakip.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		A2000001 /* CuzdanTakipApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CuzdanTakipApp.swift; sourceTree = "<group>"; };
+		A3000001 /* FinansPro.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FinansPro.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A2000001 /* FinansProApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FinansProApp.swift; sourceTree = "<group>"; };
 		A2000002 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		A2000003 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A2000004 /* TransactionModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionModel.swift; sourceTree = "<group>"; };
@@ -81,15 +81,15 @@
 		A5000001 = {
 			isa = PBXGroup;
 			children = (
-				A5000002 /* CuzdanTakip */,
+				A5000002 /* FinansPro */,
 				A5000003 /* Products */,
 			);
 			sourceTree = "<group>";
 		};
-		A5000002 /* CuzdanTakip */ = {
+		A5000002 /* FinansPro */ = {
 			isa = PBXGroup;
 			children = (
-				A2000001 /* CuzdanTakipApp.swift */,
+				A2000001 /* FinansProApp.swift */,
 				A2000002 /* ContentView.swift */,
 				A5000004 /* Models */,
 				A5000005 /* Views */,
@@ -97,13 +97,13 @@
 				A5000007 /* Utilities */,
 				A2000003 /* Assets.xcassets */,
 			);
-			path = CuzdanTakip;
+			path = FinansPro;
 			sourceTree = "<group>";
 		};
 		A5000003 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				A3000001 /* CuzdanTakip.app */,
+				A3000001 /* FinansPro.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -163,9 +163,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		A6000001 /* CuzdanTakip */ = {
+		A6000001 /* FinansPro */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = A7000001 /* Build configuration list for PBXNativeTarget "CuzdanTakip" */;
+			buildConfigurationList = A7000001 /* Build configuration list for PBXNativeTarget "FinansPro" */;
 			buildPhases = (
 				A8000001 /* Sources */,
 				A4000001 /* Frameworks */,
@@ -175,9 +175,9 @@
 			);
 			dependencies = (
 			);
-			name = CuzdanTakip;
-			productName = CuzdanTakip;
-			productReference = A3000001 /* CuzdanTakip.app */;
+			name = FinansPro;
+			productName = FinansPro;
+			productReference = A3000001 /* FinansPro.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -195,7 +195,7 @@
 					};
 				};
 			};
-			buildConfigurationList = A7000002 /* Build configuration list for PBXProject "CuzdanTakip" */;
+			buildConfigurationList = A7000002 /* Build configuration list for PBXProject "FinansPro" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = tr;
 			hasScannedForEncodings = 0;
@@ -209,7 +209,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				A6000001 /* CuzdanTakip */,
+				A6000001 /* FinansPro */,
 			);
 		};
 /* End PBXProject section */
@@ -231,7 +231,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A1000002 /* ContentView.swift in Sources */,
-				A1000001 /* CuzdanTakipApp.swift in Sources */,
+				A1000001 /* FinansProApp.swift in Sources */,
 				A1000004 /* TransactionModel.swift in Sources */,
 				A1000005 /* ThemeManager.swift in Sources */,
 				A1000006 /* ExpensesView.swift in Sources */,
@@ -444,7 +444,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		A7000001 /* Build configuration list for PBXNativeTarget "CuzdanTakip" */ = {
+		A7000001 /* Build configuration list for PBXNativeTarget "FinansPro" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A7000005 /* Debug */,
@@ -453,7 +453,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		A7000002 /* Build configuration list for PBXProject "CuzdanTakip" */ = {
+		A7000002 /* Build configuration list for PBXProject "FinansPro" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A7000003 /* Debug */,

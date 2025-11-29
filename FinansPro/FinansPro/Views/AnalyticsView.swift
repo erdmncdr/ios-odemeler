@@ -1,6 +1,6 @@
 //
 //  AnalyticsView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Detaylı grafik ve analiz ekranı
 //

@@ -1,6 +1,6 @@
 //
 //  RecurringPaymentsView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Tekrarlayan ödemeler yönetim ekranı
 //

@@ -1,6 +1,6 @@
 //
 //  SettingsView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Ayarlar ekranı
 //

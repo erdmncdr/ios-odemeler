@@ -1,6 +1,6 @@
 //
 //  CategoryManagerView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Kategori yönetimi ekranı
 //

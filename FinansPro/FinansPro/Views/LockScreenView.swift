@@ -1,6 +1,6 @@
 //
 //  LockScreenView.swift
-//  CuzdanTakip
+//  FinansPro
 //
 //  Biyometrik kilit ekranı
 //
