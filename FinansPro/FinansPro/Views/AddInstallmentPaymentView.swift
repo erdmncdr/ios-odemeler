@@ -12,7 +12,7 @@ struct AddInstallmentPaymentView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var title = ""
-    @State private var amount = ""
+    @State private var amount: Double = 0
     @State private var installmentCount = 3
     @State private var startDate = Date()
     @State private var frequency: RecurrenceFrequency = .monthly
@@ -73,7 +73,8 @@ struct AddInstallmentPaymentView: View {
                                     .font(Theme.callout)
                                     .foregroundColor(.secondary)
 
-                                CurrencyTextField(amount: $amount, placeholder: "0,00")
+                                CurrencyTextFieldWithoutFocus(title: "0,00", value: $amount)
+                                    .font(Theme.body)
                                     .padding()
                                     .background(.ultraThinMaterial)
                                     .cornerRadius(12)
@@ -100,8 +101,7 @@ struct AddInstallmentPaymentView: View {
                             }
 
                             // Taksit tutarı önizlemesi
-                            if let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")),
-                               amountValue > 0 {
+                            if amount > 0 {
                                 HStack {
                                     Image(systemName: "equal.circle.fill")
                                         .foregroundStyle(Theme.primaryGradient)
@@ -112,7 +112,7 @@ struct AddInstallmentPaymentView: View {
 
                                     Spacer()
 
-                                    Text((amountValue / Double(installmentCount)).toCurrency())
+                                    Text((amount / Double(installmentCount)).toCurrency())
                                         .font(Theme.title3)
                                         .fontWeight(.bold)
                                         .foregroundStyle(Theme.primaryGradient)
@@ -252,18 +252,15 @@ struct AddInstallmentPaymentView: View {
     }
 
     private var isValid: Bool {
-        !title.isEmpty &&
-        !amount.isEmpty &&
-        Double(amount.replacingOccurrences(of: ",", with: ".")) ?? 0 > 0
+        !title.isEmpty && amount > 0
     }
 
     private func saveInstallmentPayment() {
         guard isValid else { return }
-        guard let amountValue = Double(amount.replacingOccurrences(of: ",", with: ".")) else { return }
 
         let payment = InstallmentPayment(
             title: title,
-            totalAmount: amountValue,
+            totalAmount: amount,
             installmentCount: installmentCount,
             category: selectedStandardCategory,
             customCategoryId: selectedCustomCategoryId,
