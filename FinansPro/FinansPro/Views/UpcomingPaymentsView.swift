@@ -20,6 +20,7 @@ struct UpcomingPaymentsView: View {
 
     enum PaymentType: String, CaseIterable {
         case upcoming = "Tek Seferlik"
+        case installments = "Taksitli"
         case recurring = "Düzenli Ödemeler"
     }
 
@@ -88,6 +89,21 @@ struct UpcomingPaymentsView: View {
 
     private var activeRecurringCount: Int {
         dataManager.recurringTransactions.filter { $0.isActive }.count
+    }
+
+    private var activeInstallmentCount: Int {
+        dataManager.getActiveInstallmentPayments().count
+    }
+
+    private var searchPlaceholder: String {
+        switch selectedPaymentType {
+        case .upcoming:
+            return "Ödeme ara..."
+        case .installments:
+            return "Taksit ara..."
+        case .recurring:
+            return "Tekrarlayan ödeme ara..."
+        }
     }
 
     var body: some View {
@@ -179,7 +195,7 @@ struct UpcomingPaymentsView: View {
                     .padding(.top, 20)
 
                     // Arama çubuğu
-                    SearchBar(text: $searchText, placeholder: selectedPaymentType == .upcoming ? "Ödeme ara..." : "Tekrarlayan ödeme ara...")
+                    SearchBar(text: $searchText, placeholder: searchPlaceholder)
                         .padding(.horizontal)
 
                     // Segmented Picker
@@ -197,7 +213,8 @@ struct UpcomingPaymentsView: View {
                     }
 
                     // Özet kartları - seçime göre
-                    if selectedPaymentType == .upcoming {
+                    switch selectedPaymentType {
+                    case .upcoming:
                         HStack(spacing: 15) {
                             SummaryCard(
                                 title: "Toplam",
@@ -218,7 +235,30 @@ struct UpcomingPaymentsView: View {
                             )
                         }
                         .padding(.horizontal)
-                    } else {
+
+                    case .installments:
+                        HStack(spacing: 15) {
+                            SummaryCard(
+                                title: "Aktif",
+                                amount: Double(activeInstallmentCount),
+                                icon: "creditcard.fill",
+                                gradient: LinearGradient(
+                                    colors: [.purple, .blue],
+                                    startPoint: .topLeading,
+                                    endPoint: .bottomTrailing
+                                )
+                            )
+
+                            SummaryCard(
+                                title: "Toplam",
+                                amount: Double(dataManager.installmentPayments.count),
+                                icon: "list.bullet",
+                                gradient: Theme.primaryGradient
+                            )
+                        }
+                        .padding(.horizontal)
+
+                    case .recurring:
                         HStack(spacing: 15) {
                             SummaryCard(
                                 title: "Aktif",
@@ -242,9 +282,12 @@ struct UpcomingPaymentsView: View {
                     }
 
                     // İçerik - seçime göre
-                    if selectedPaymentType == .upcoming {
+                    switch selectedPaymentType {
+                    case .upcoming:
                         oneTimePaymentsList
-                    } else {
+                    case .installments:
+                        installmentPaymentsList
+                    case .recurring:
                         recurringPaymentsList
                     }
 
@@ -326,6 +369,53 @@ struct UpcomingPaymentsView: View {
                     icon: "checkmark.circle",
                     title: "Gelecek ödeme yok",
                     message: "Yaklaşan ödemeleriniz burada görünecek"
+                )
+                .padding(.top, 60)
+            }
+        }
+    }
+
+    // MARK: - Installment Payments List
+    private var installmentPaymentsList: some View {
+        Group {
+            let activeInstallments = dataManager.getActiveInstallmentPayments()
+            let completedInstallments = dataManager.getCompletedInstallmentPayments()
+
+            // Aktif taksitli ödemeler
+            if !activeInstallments.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Aktif", icon: "creditcard.fill")
+
+                    ForEach(activeInstallments) { payment in
+                        NavigationLink(destination: InstallmentPaymentDetailView(payment: payment)) {
+                            InstallmentPaymentListCard(payment: payment)
+                                .padding(.horizontal)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+            }
+
+            // Tamamlanmış taksitli ödemeler
+            if !completedInstallments.isEmpty {
+                VStack(spacing: 12) {
+                    SectionHeader("Tamamlandı", icon: "checkmark.circle.fill")
+
+                    ForEach(completedInstallments) { payment in
+                        NavigationLink(destination: InstallmentPaymentDetailView(payment: payment)) {
+                            InstallmentPaymentListCard(payment: payment)
+                                .padding(.horizontal)
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+            }
+
+            if dataManager.installmentPayments.isEmpty {
+                EmptyStateView(
+                    icon: "creditcard",
+                    title: "Taksitli ödeme yok",
+                    message: "Taksitli ödemeleriniz burada görünecek"
                 )
                 .padding(.top, 60)
             }
@@ -507,16 +597,29 @@ struct PaymentSelectionView: View {
                     NavigationLink(destination: AddTransactionView(transactionType: .upcoming)) {
                         PaymentTypeCard(
                             title: "Tek Seferlik Ödeme",
-                            description: "",
+                            description: "Bir kez ödenecek fatura",
                             icon: "doc.text.fill",
                             gradient: Theme.primaryGradient
+                        )
+                    }
+
+                    NavigationLink(destination: AddInstallmentPaymentView()) {
+                        PaymentTypeCard(
+                            title: "Taksitli Ödeme",
+                            description: "Aylık taksitlerle ödeme",
+                            icon: "creditcard.fill",
+                            gradient: LinearGradient(
+                                colors: [.purple, .blue],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            )
                         )
                     }
 
                     NavigationLink(destination: RecurringPaymentsView()) {
                         PaymentTypeCard(
                             title: "Tekrarlayan Ödeme",
-                            description: "",
+                            description: "Düzenli tekrar eden fatura",
                             icon: "repeat.circle.fill",
                             gradient: LinearGradient(
                                 colors: [.orange, .red],
@@ -581,6 +684,117 @@ struct PaymentTypeCard: View {
         }
         .padding()
         .premiumCard()
+    }
+}
+
+// Installment Payment List Card
+struct InstallmentPaymentListCard: View {
+    let payment: InstallmentPayment
+    @Environment(\.colorScheme) var colorScheme
+
+    var body: some View {
+        HStack(spacing: 15) {
+            // İkon
+            ZStack {
+                Circle()
+                    .fill(payment.isCompleted ? Color.green.opacity(0.3) : LinearGradient(
+                        colors: [.purple, .blue],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    ))
+                    .frame(width: 50, height: 50)
+
+                if payment.isCompleted {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(.green)
+                } else {
+                    Image(systemName: "creditcard.fill")
+                        .font(.system(size: 22))
+                        .foregroundColor(.white)
+                }
+            }
+
+            // Bilgiler
+            VStack(alignment: .leading, spacing: 4) {
+                Text(payment.title)
+                    .font(Theme.headline)
+                    .foregroundColor(.primary)
+
+                HStack(spacing: 8) {
+                    Text("\(payment.paidCount)/\(payment.installmentCount) taksit")
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+
+                    if payment.isCompleted {
+                        Text("• Tamamlandı")
+                            .font(Theme.caption)
+                            .foregroundColor(.green)
+                    } else {
+                        Text("• Devam ediyor")
+                            .font(Theme.caption)
+                            .foregroundColor(.blue)
+                    }
+                }
+
+                // İlerleme çubuğu
+                GeometryReader { geometry in
+                    ZStack(alignment: .leading) {
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color.gray.opacity(0.2))
+                            .frame(height: 6)
+
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(
+                                payment.isCompleted ? Color.green :
+                                LinearGradient(
+                                    colors: [.purple, .blue],
+                                    startPoint: .leading,
+                                    endPoint: .trailing
+                                )
+                            )
+                            .frame(
+                                width: geometry.size.width * (payment.progressPercentage / 100),
+                                height: 6
+                            )
+                    }
+                }
+                .frame(height: 6)
+            }
+
+            Spacer()
+
+            // Miktar bilgisi
+            VStack(alignment: .trailing, spacing: 4) {
+                Text(payment.totalAmount.toCurrency())
+                    .font(Theme.headline)
+                    .foregroundColor(payment.isCompleted ? .green : .purple)
+                    .fontWeight(.bold)
+
+                if !payment.isCompleted {
+                    Text("Kalan: \(payment.remainingAmount.toCurrency())")
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Image(systemName: "chevron.right")
+                .foregroundColor(.secondary)
+                .font(.caption)
+        }
+        .padding()
+        .background(.ultraThinMaterial)
+        .cornerRadius(20)
+        .overlay(
+            RoundedRectangle(cornerRadius: 20)
+                .stroke(payment.isCompleted ? Color.green.opacity(0.5) : Color.purple.opacity(0.5), lineWidth: 2)
+        )
+        .shadow(
+            color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
+            radius: 15,
+            x: 0,
+            y: 5
+        )
     }
 }
 

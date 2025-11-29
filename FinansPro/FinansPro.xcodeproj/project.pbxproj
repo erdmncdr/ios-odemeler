@@ -35,6 +35,8 @@
 		A1000026 /* CurrencyTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000026 /* CurrencyTextField.swift */; };
 		A1000027 /* AppearanceManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000027 /* AppearanceManager.swift */; };
 		A1000028 /* InstallmentPayment.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000028 /* InstallmentPayment.swift */; };
+		A1000029 /* AddInstallmentPaymentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000029 /* AddInstallmentPaymentView.swift */; };
+		A1000030 /* InstallmentPaymentDetailView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A2000030 /* InstallmentPaymentDetailView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -67,6 +69,8 @@
 		A2000026 /* CurrencyTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyTextField.swift; sourceTree = "<group>"; };
 		A2000027 /* AppearanceManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppearanceManager.swift; sourceTree = "<group>"; };
 		A2000028 /* InstallmentPayment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallmentPayment.swift; sourceTree = "<group>"; };
+		A2000029 /* AddInstallmentPaymentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddInstallmentPaymentView.swift; sourceTree = "<group>"; };
+		A2000030 /* InstallmentPaymentDetailView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InstallmentPaymentDetailView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -132,6 +136,8 @@
 				A2000009 /* UpcomingPaymentsView.swift */,
 				A2000018 /* CategoryManagerView.swift */,
 				A2000021 /* RecurringPaymentsView.swift */,
+				A2000029 /* AddInstallmentPaymentView.swift */,
+				A2000030 /* InstallmentPaymentDetailView.swift */,
 				A2000023 /* LockScreenView.swift */,
 				A2000024 /* SettingsView.swift */,
 				A2000025 /* AnalyticsView.swift */,
@@ -260,6 +266,8 @@
 				A1000026 /* CurrencyTextField.swift in Sources */,
 				A1000027 /* AppearanceManager.swift in Sources */,
 				A1000028 /* InstallmentPayment.swift in Sources */,
+				A1000029 /* AddInstallmentPaymentView.swift in Sources */,
+				A1000030 /* InstallmentPaymentDetailView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
