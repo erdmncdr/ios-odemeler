@@ -64,7 +64,7 @@ class DataExportManager {
     }
 
     /// Tekrarlayan ödemeleri CSV formatında dışa aktarır
-    func exportRecurringPaymentsToCSV(recurringPayments: [RecurringPayment]) -> Result<URL, ExportError> {
+    func exportRecurringPaymentsToCSV(recurringPayments: [RecurringTransaction]) -> Result<URL, ExportError> {
         var csvText = "Başlık,Tutar,Periyot,Başlangıç,Bitiş,Kategori,Durum\n"
 
         let dateFormatter = DateFormatter()
@@ -87,7 +87,7 @@ class DataExportManager {
     }
 
     /// Tüm verileri tek bir CSV dosyasında dışa aktarır
-    func exportAllDataToCSV(transactions: [Transaction], installments: [InstallmentPayment], recurringPayments: [RecurringPayment]) -> Result<URL, ExportError> {
+    func exportAllDataToCSV(transactions: [Transaction], installments: [InstallmentPayment], recurringPayments: [RecurringTransaction]) -> Result<URL, ExportError> {
         var csvText = "=== FİNANSPRO TAM RAPOR ===\n"
         csvText += "Oluşturulma Tarihi: \(getCurrentDateTimeString())\n\n"
 

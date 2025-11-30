@@ -231,7 +231,7 @@ struct NotificationSettingsView: View {
         guard notificationManager.isAuthorized else { return }
 
         notificationManager.scheduleAllNotifications(
-            recurringPayments: dataManager.recurringPayments,
+            recurringPayments: dataManager.recurringTransactions,
             installmentPayments: dataManager.installmentPayments
         )
 
