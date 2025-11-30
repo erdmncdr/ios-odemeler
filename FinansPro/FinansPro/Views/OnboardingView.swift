@@ -127,7 +127,6 @@ struct OnboardingView: View {
                 }
             }
         }
-        .preferredColorScheme(.dark)
     }
 
     private func completeOnboarding() {

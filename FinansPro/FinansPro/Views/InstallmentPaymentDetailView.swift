@@ -68,7 +68,7 @@ struct InstallmentPaymentDetailView: View {
                         GeometryReader { geometry in
                             ZStack(alignment: .leading) {
                                 RoundedRectangle(cornerRadius: 8)
-                                    .fill(Color.gray.opacity(0.2))
+                                    .fill(Color(.systemGray).opacity(0.2))
                                     .frame(height: 12)
 
                                 RoundedRectangle(cornerRadius: 8)
@@ -332,7 +332,7 @@ struct InstallmentCard: View {
                             .foregroundColor(.white)
                             .padding(.horizontal, 12)
                             .padding(.vertical, 6)
-                            .background(Color.gray)
+                            .background(Color(.systemGray))
                             .cornerRadius(8)
                     }
                 }
@@ -365,7 +365,7 @@ struct InstallmentCard: View {
         } else if installment.isUpcoming {
             return Color.orange.opacity(0.5)
         } else {
-            return Color.gray.opacity(0.3)
+            return Color(.systemGray).opacity(0.3)
         }
     }
 }
