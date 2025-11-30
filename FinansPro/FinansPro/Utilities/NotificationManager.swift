@@ -284,13 +284,13 @@ class NotificationManager: ObservableObject {
     // MARK: - Recurring Payments Notifications
 
     /// Tekrarlayan ödemeler için bildirim planla
-    func scheduleRecurringPaymentNotifications(recurringPayments: [RecurringPayment]) {
+    func scheduleRecurringPaymentNotifications(recurringPayments: [RecurringTransaction]) {
         guard isAuthorized && notificationSettings.recurringPaymentsEnabled else { return }
 
         let activePayments = recurringPayments.filter { $0.isActive }
 
         for payment in activePayments {
-            guard let nextPaymentDate = payment.nextPaymentDate else { continue }
+            let nextPaymentDate = payment.nextPaymentDate
 
             // Ödeme gününden X gün önce hatırlat
             let daysBeforeArray = notificationSettings.recurringReminderDays
@@ -369,7 +369,7 @@ class NotificationManager: ObservableObject {
 
     /// Tüm bildirimleri yeniden planla
     func scheduleAllNotifications(
-        recurringPayments: [RecurringPayment],
+        recurringPayments: [RecurringTransaction],
         installmentPayments: [InstallmentPayment]
     ) {
         guard isAuthorized else { return }

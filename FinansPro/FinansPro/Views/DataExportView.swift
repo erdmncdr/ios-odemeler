@@ -252,7 +252,7 @@ struct DataExportView: View {
                 result = DataExportManager.shared.exportAllDataToCSV(
                     transactions: dataManager.transactions,
                     installments: dataManager.installmentPayments,
-                    recurringPayments: dataManager.recurringPayments
+                    recurringPayments: dataManager.recurringTransactions
                 )
 
             case .csvTransactions:
@@ -267,7 +267,7 @@ struct DataExportView: View {
 
             case .csvRecurring:
                 result = DataExportManager.shared.exportRecurringPaymentsToCSV(
-                    recurringPayments: dataManager.recurringPayments
+                    recurringPayments: dataManager.recurringTransactions
                 )
 
             case .pdf:
@@ -302,7 +302,7 @@ struct DataExportView: View {
                 month: selectedMonth,
                 transactions: filteredTransactions,
                 installments: dataManager.installmentPayments,
-                recurringPayments: dataManager.recurringPayments
+                recurringPayments: dataManager.recurringTransactions
             )
 
         case .yearly:

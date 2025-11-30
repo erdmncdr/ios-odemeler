@@ -22,7 +22,7 @@ class PDFReportGenerator {
         month: Date,
         transactions: [Transaction],
         installments: [InstallmentPayment],
-        recurringPayments: [RecurringPayment]
+        recurringPayments: [RecurringTransaction]
     ) -> Result<URL, ExportError> {
         let pdfMetaData = [
             kCGPDFContextCreator: "FinansPro",
