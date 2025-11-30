@@ -11,6 +11,12 @@ struct FilterView: View {
     @Binding var filterOptions: FilterOptions
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     @State private var selectedDateRange: DateRange?
     @State private var selectedCategories: Set<TransactionCategory> = []
@@ -22,7 +28,7 @@ struct FilterView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {

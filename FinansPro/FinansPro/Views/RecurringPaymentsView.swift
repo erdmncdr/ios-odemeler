@@ -11,12 +11,18 @@ struct RecurringPaymentsView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
     @State private var showingAddRecurring = false
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 if dataManager.recurringTransactions.isEmpty {
@@ -283,7 +289,7 @@ struct AddRecurringTransactionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 Form {
@@ -432,7 +438,7 @@ struct EditRecurringTransactionView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 Form {
