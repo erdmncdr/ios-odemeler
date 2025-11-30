@@ -16,6 +16,8 @@ struct SettingsView: View {
     @State private var showingCategoryManager = false
     @State private var showingRecurringPayments = false
     @State private var showingClearDataAlert = false
+    @State private var showingNotificationSettings = false
+    @State private var showingDataExport = false
 
     var body: some View {
         NavigationStack {
@@ -122,6 +124,32 @@ struct SettingsView: View {
                                 color: .orange
                             )
                         }
+
+                        // Bildirimler
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingNotificationSettings = true
+                        } label: {
+                            SettingsRow(
+                                icon: "bell.badge.fill",
+                                title: "Bildirimler",
+                                subtitle: "Ödeme hatırlatıcıları",
+                                color: .blue
+                            )
+                        }
+
+                        // Veri Dışa Aktarma
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingDataExport = true
+                        } label: {
+                            SettingsRow(
+                                icon: "square.and.arrow.up.fill",
+                                title: "Veri Dışa Aktarma",
+                                subtitle: "CSV ve PDF rapor",
+                                color: .green
+                            )
+                        }
                     }
 
                     // Veri Yönetimi
@@ -195,6 +223,12 @@ struct SettingsView: View {
             }
             .sheet(isPresented: $showingRecurringPayments) {
                 RecurringPaymentsView()
+            }
+            .sheet(isPresented: $showingNotificationSettings) {
+                NotificationSettingsView()
+            }
+            .sheet(isPresented: $showingDataExport) {
+                DataExportView()
             }
             .alert("Tüm Verileri Sil?", isPresented: $showingClearDataAlert) {
                 Button("İptal", role: .cancel) { }

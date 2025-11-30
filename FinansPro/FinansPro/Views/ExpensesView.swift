@@ -14,6 +14,7 @@ struct ExpensesView: View {
     @State private var searchText = ""
     @State private var filterOptions = FilterOptions()
     @State private var showingFilterSheet = false
+    @State private var showingReceiptScanner = false
     @Environment(\.colorScheme) var colorScheme
 
     private var expenses: [Transaction] {
@@ -62,6 +63,23 @@ struct ExpensesView: View {
                         }
 
                         Spacer()
+
+                        // Fiş Tara butonu
+                        Button {
+                            HapticManager.shared.impact(style: .light)
+                            showingReceiptScanner = true
+                        } label: {
+                            Image(systemName: "doc.text.viewfinder")
+                                .font(.system(size: 28))
+                                .foregroundStyle(
+                                    LinearGradient(
+                                        colors: [.blue, .purple],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                        }
+                        .padding(.trailing, 8)
 
                         // Filtre butonu
                         Button {
@@ -183,6 +201,9 @@ struct ExpensesView: View {
         }
         .sheet(isPresented: $showingFilterSheet) {
             FilterView(filterOptions: $filterOptions)
+        }
+        .sheet(isPresented: $showingReceiptScanner) {
+            ReceiptScannerView()
         }
     }
 }

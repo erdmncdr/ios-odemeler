@@ -14,9 +14,11 @@ class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
 
     @Published var isAuthorized = false
+    @Published var notificationSettings = NotificationSettings()
 
     private init() {
         checkAuthorization()
+        loadSettings()
     }
 
     // Bildirim izni kontrolü
@@ -43,6 +45,23 @@ class NotificationManager: ObservableObject {
         } catch {
             print("Bildirim izni hatası: \(error.localizedDescription)")
             return false
+        }
+    }
+
+    // MARK: - Settings Management
+
+    /// Bildirim ayarlarını yükler
+    func loadSettings() {
+        if let data = UserDefaults.standard.data(forKey: "notificationSettings"),
+           let settings = try? JSONDecoder().decode(NotificationSettings.self, from: data) {
+            self.notificationSettings = settings
+        }
+    }
+
+    /// Bildirim ayarlarını kaydeder
+    func saveSettings() {
+        if let data = try? JSONEncoder().encode(notificationSettings) {
+            UserDefaults.standard.set(data, forKey: "notificationSettings")
         }
     }
 
@@ -260,6 +279,154 @@ class NotificationManager: ObservableObject {
                 print("- \(request.content.title): \(request.content.body)")
             }
         }
+    }
+
+    // MARK: - Recurring Payments Notifications
+
+    /// Tekrarlayan ödemeler için bildirim planla
+    func scheduleRecurringPaymentNotifications(recurringPayments: [RecurringPayment]) {
+        guard isAuthorized && notificationSettings.recurringPaymentsEnabled else { return }
+
+        let activePayments = recurringPayments.filter { $0.isActive }
+
+        for payment in activePayments {
+            guard let nextPaymentDate = payment.nextPaymentDate else { continue }
+
+            // Ödeme gününden X gün önce hatırlat
+            let daysBeforeArray = notificationSettings.recurringReminderDays
+            for daysBefore in daysBeforeArray {
+                if let reminderDate = Calendar.current.date(byAdding: .day, value: -daysBefore, to: nextPaymentDate),
+                   reminderDate > Date() {
+                    scheduleRecurringNotification(
+                        id: "recurring_\(payment.id)_\(daysBefore)",
+                        title: "💳 Yaklaşan Tekrarlayan Ödeme",
+                        body: "\(payment.title) - \(daysBefore) gün sonra (\(payment.amount.toCurrency()))",
+                        date: reminderDate
+                    )
+                }
+            }
+        }
+    }
+
+    /// Tekrarlayan ödeme bildirimi planla
+    private func scheduleRecurringNotification(
+        id: String,
+        title: String,
+        body: String,
+        date: Date
+    ) {
+        let calendar = Calendar.current
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+        content.badge = 1
+        content.categoryIdentifier = "RECURRING_PAYMENT"
+
+        var dateComponents = calendar.dateComponents([.year, .month, .day], from: date)
+        dateComponents.hour = 9
+        dateComponents.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: false)
+        let request = UNNotificationRequest(identifier: id, content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Tekrarlayan ödeme bildirimi hatası: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    // MARK: - Daily Summary
+
+    /// Günlük özet bildirimi planla
+    func scheduleDailySummary() {
+        guard isAuthorized && notificationSettings.dailySummaryEnabled else {
+            // Eğer kapalıysa mevcut bildirimi iptal et
+            UNUserNotificationCenter.current().removePendingNotificationRequests(withIdentifiers: ["daily_summary"])
+            return
+        }
+
+        var dateComponents = DateComponents()
+        dateComponents.hour = notificationSettings.dailySummaryTime.hour
+        dateComponents.minute = notificationSettings.dailySummaryTime.minute
+
+        let content = UNMutableNotificationContent()
+        content.title = "📊 Günlük Finansal Özet"
+        content.body = "Bugünün harcamalarını kontrol etmeyi unutmayın!"
+        content.sound = .default
+        content.categoryIdentifier = "DAILY_SUMMARY"
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: "daily_summary", content: content, trigger: trigger)
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error = error {
+                print("Günlük özet bildirimi hatası: \(error.localizedDescription)")
+            }
+        }
+    }
+
+    /// Tüm bildirimleri yeniden planla
+    func scheduleAllNotifications(
+        recurringPayments: [RecurringPayment],
+        installmentPayments: [InstallmentPayment]
+    ) {
+        guard isAuthorized else { return }
+
+        // Tekrarlayan ödemeler
+        if notificationSettings.recurringPaymentsEnabled {
+            scheduleRecurringPaymentNotifications(recurringPayments: recurringPayments)
+        }
+
+        // Taksitli ödemeler
+        if notificationSettings.installmentPaymentsEnabled {
+            for payment in installmentPayments where !payment.isCompleted {
+                for installment in payment.installments where !installment.isPaid {
+                    scheduleInstallmentNotification(
+                        paymentTitle: payment.title,
+                        installmentNumber: installment.installmentNumber,
+                        amount: installment.amount,
+                        dueDate: installment.dueDate
+                    )
+                }
+            }
+        }
+
+        // Günlük özet
+        scheduleDailySummary()
+    }
+
+    /// Planlanmış bildirim sayısını getir
+    func getPendingNotificationCount(completion: @escaping (Int) -> Void) {
+        UNUserNotificationCenter.current().getPendingNotificationRequests { requests in
+            DispatchQueue.main.async {
+                completion(requests.count)
+            }
+        }
+    }
+}
+
+// MARK: - Notification Settings
+
+struct NotificationSettings: Codable {
+    var recurringPaymentsEnabled = true
+    var installmentPaymentsEnabled = true
+    var overdueNotificationsEnabled = true
+    var dailySummaryEnabled = false
+
+    var recurringReminderDays = [1, 3] // 1 ve 3 gün önce
+    var installmentReminderDays = [1, 3, 7] // 1, 3 ve 7 gün önce
+
+    var dailySummaryTime = NotificationTime(hour: 20, minute: 0)
+}
+
+struct NotificationTime: Codable {
+    var hour: Int
+    var minute: Int
+
+    var displayString: String {
+        String(format: "%02d:%02d", hour, minute)
     }
 }
 

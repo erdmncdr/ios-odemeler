@@ -14,6 +14,7 @@ struct FinansProApp: App {
     @StateObject private var notificationManager = NotificationManager.shared
     @StateObject private var biometricAuth = BiometricAuthManager.shared
     @StateObject private var appearanceManager = AppearanceManager.shared
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var showNotificationPermission = false
     @Environment(\.scenePhase) var scenePhase
 
@@ -25,26 +26,36 @@ struct FinansProApp: App {
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
-                    .environmentObject(dataManager)
-                    .environmentObject(notificationManager)
-                    .environmentObject(biometricAuth)
-                    .environmentObject(appearanceManager)
-                    .preferredColorScheme(appearanceManager.colorScheme)
-                    .onAppear {
-                        // Bildirim izni kontrolü
-                        checkNotificationPermission()
-                    }
-                    .sheet(isPresented: $showNotificationPermission) {
-                        NotificationPermissionView()
-                    }
-
-                // Kilit ekranı overlay
-                if biometricAuth.isLocked && biometricAuth.isBiometricEnabled {
-                    LockScreenView()
+                if hasCompletedOnboarding {
+                    // Ana uygulama
+                    ContentView()
+                        .environmentObject(dataManager)
+                        .environmentObject(notificationManager)
                         .environmentObject(biometricAuth)
+                        .environmentObject(appearanceManager)
+                        .preferredColorScheme(appearanceManager.colorScheme)
+                        .onAppear {
+                            // Bildirim izni kontrolü
+                            checkNotificationPermission()
+
+                            // ML modelini kullanıcı verileriyle eğit
+                            trainMLModel()
+                        }
+                        .sheet(isPresented: $showNotificationPermission) {
+                            NotificationPermissionView()
+                        }
+
+                    // Kilit ekranı overlay
+                    if biometricAuth.isLocked && biometricAuth.isBiometricEnabled {
+                        LockScreenView()
+                            .environmentObject(biometricAuth)
+                            .transition(.opacity)
+                            .zIndex(999)
+                    }
+                } else {
+                    // Onboarding ekranı
+                    OnboardingView(isOnboardingComplete: $hasCompletedOnboarding)
                         .transition(.opacity)
-                        .zIndex(999)
                 }
             }
             .onChange(of: scenePhase) { _, newPhase in
@@ -73,6 +84,16 @@ struct FinansProApp: App {
                         showNotificationPermission = true
                     }
                 }
+            }
+        }
+    }
+
+    private func trainMLModel() {
+        // Kullanıcının tüm işlemlerini al ve ML modelini eğit
+        let allTransactions = dataManager.transactions
+        if !allTransactions.isEmpty {
+            DispatchQueue.global(qos: .background).async {
+                MLCategoryPredictor.shared.trainWithUserData(transactions: allTransactions)
             }
         }
     }

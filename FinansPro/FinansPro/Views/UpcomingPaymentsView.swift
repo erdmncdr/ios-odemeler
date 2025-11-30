@@ -570,7 +570,7 @@ struct UpcomingPaymentCard: View {
         .clipShape(RoundedRectangle(cornerRadius: 20))
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(isUrgent ? Color.red.opacity(0.6) : Color.gray.opacity(0.3), lineWidth: 2)
+                .stroke(isUrgent ? Color.red.opacity(0.6) : Color(.systemGray).opacity(0.3), lineWidth: 2)
         )
         .shadow(
             color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
@@ -741,7 +741,7 @@ struct InstallmentPaymentListCard: View {
                 GeometryReader { geometry in
                     ZStack(alignment: .leading) {
                         RoundedRectangle(cornerRadius: 4)
-                            .fill(Color.gray.opacity(0.2))
+                            .fill(Color(.systemGray).opacity(0.2))
                             .frame(height: 6)
 
                         RoundedRectangle(cornerRadius: 4)
@@ -811,7 +811,7 @@ struct RecurringPaymentCard: View {
                         colors: [.orange, .red],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
-                    )) : AnyShapeStyle(Color.gray.opacity(0.3)))
+                    )) : AnyShapeStyle(Color(.systemGray).opacity(0.3)))
                     .frame(width: 50, height: 50)
 
                 Image(systemName: "repeat")
@@ -855,7 +855,7 @@ struct RecurringPaymentCard: View {
         .cornerRadius(20)
         .overlay(
             RoundedRectangle(cornerRadius: 20)
-                .stroke(recurring.isActive ? Color.orange.opacity(0.5) : Color.gray.opacity(0.3), lineWidth: 2)
+                .stroke(recurring.isActive ? Color.orange.opacity(0.5) : Color(.systemGray).opacity(0.3), lineWidth: 2)
         )
         .shadow(
             color: colorScheme == .dark ? Color.black.opacity(0.5) : Color.black.opacity(0.08),
