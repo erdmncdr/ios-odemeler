@@ -74,6 +74,7 @@ struct Transaction: Identifiable, Codable, Equatable {
     var dueDate: Date?
     var customCategoryId: UUID? // Özel kategori kullanılıyorsa
     var trackedInCashFlow: Bool? // Borç/alacak için: gelir/gider olarak da kaydedildi mi?
+    var receiptImageData: Data? // Fiş/fatura fotoğrafı
 
     init(
         id: UUID = UUID(),
@@ -86,7 +87,8 @@ struct Transaction: Identifiable, Codable, Equatable {
         isPaid: Bool = true,
         dueDate: Date? = nil,
         customCategoryId: UUID? = nil,
-        trackedInCashFlow: Bool? = nil
+        trackedInCashFlow: Bool? = nil,
+        receiptImageData: Data? = nil
     ) {
         self.id = id
         self.title = title
@@ -99,6 +101,7 @@ struct Transaction: Identifiable, Codable, Equatable {
         self.dueDate = dueDate
         self.customCategoryId = customCategoryId
         self.trackedInCashFlow = trackedInCashFlow
+        self.receiptImageData = receiptImageData
     }
 
     /// İşlemin gerçek kategori bilgisini döndürür (özel veya varsayılan)
