@@ -3,11 +3,12 @@
 //  FinansPro
 //
 //  Fiş/fatura tarama ekranı
-//  Kamera ve galeri desteği
+//  Kamera, galeri ve PDF desteği
 //
 
 import SwiftUI
 import PhotosUI
+import UniformTypeIdentifiers
 
 struct ReceiptScannerView: View {
     @Environment(\.dismiss) var dismiss
@@ -16,11 +17,13 @@ struct ReceiptScannerView: View {
     @State private var selectedImage: UIImage?
     @State private var showingImagePicker = false
     @State private var showingCamera = false
+    @State private var showingPDFPicker = false
     @State private var isProcessing = false
     @State private var parsedReceipt: ParsedReceipt?
     @State private var showingReview = false
     @State private var errorMessage: String?
     @State private var showingError = false
+    @State private var isPDFMode = false
 
     var body: some View {
         NavigationStack {
@@ -167,6 +170,104 @@ struct ReceiptScannerView: View {
                                 .background(.ultraThinMaterial)
                                 .cornerRadius(16)
                             }
+
+                            // PDF butonu
+                            Button(action: {
+                                HapticManager.shared.impact(style: .medium)
+                                showingPDFPicker = true
+                            }) {
+                                HStack {
+                                    Image(systemName: "doc.text.fill")
+                                        .font(.system(size: 24))
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("PDF Fatura Seç")
+                                            .font(Theme.headline)
+                                            .fontWeight(.semibold)
+
+                                        Text("PDF dosyasından bilgi oku")
+                                            .font(Theme.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.secondary)
+                                }
+                                .foregroundColor(.primary)
+                                .padding()
+                                .background(.ultraThinMaterial)
+                                .cornerRadius(16)
+                            }
+
+                            // Ayraç
+                            HStack {
+                                Rectangle()
+                                    .fill(Color.secondary.opacity(0.3))
+                                    .frame(height: 1)
+
+                                Text("YA DA")
+                                    .font(Theme.caption)
+                                    .foregroundColor(.secondary)
+                                    .padding(.horizontal, 8)
+
+                                Rectangle()
+                                    .fill(Color.secondary.opacity(0.3))
+                                    .frame(height: 1)
+                            }
+                            .padding(.vertical, 8)
+
+                            // Toplu tarama butonu
+                            NavigationLink(destination: BatchReceiptScannerView()) {
+                                HStack {
+                                    Image(systemName: "square.stack.3d.up.fill")
+                                        .font(.system(size: 24))
+                                        .foregroundStyle(
+                                            LinearGradient(
+                                                colors: [.orange, .pink],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            )
+                                        )
+
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text("Toplu Tarama")
+                                            .font(Theme.headline)
+                                            .fontWeight(.semibold)
+
+                                        Text("Birden fazla fiş/fatura tara")
+                                            .font(Theme.caption)
+                                            .foregroundColor(.secondary)
+                                    }
+
+                                    Spacer()
+
+                                    Image(systemName: "chevron.right")
+                                        .foregroundColor(.secondary)
+                                }
+                                .foregroundColor(.primary)
+                                .padding()
+                                .background(
+                                    LinearGradient(
+                                        colors: [.orange.opacity(0.1), .pink.opacity(0.1)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    )
+                                )
+                                .cornerRadius(16)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .stroke(
+                                            LinearGradient(
+                                                colors: [.orange, .pink],
+                                                startPoint: .topLeading,
+                                                endPoint: .bottomTrailing
+                                            ),
+                                            lineWidth: 2
+                                        )
+                                )
+                            }
                         }
                         .padding(.horizontal)
                         .padding(.bottom, 40)
@@ -197,6 +298,9 @@ struct ReceiptScannerView: View {
             }
             .sheet(isPresented: $showingCamera) {
                 ImagePicker(image: $selectedImage, sourceType: .camera)
+            }
+            .sheet(isPresented: $showingPDFPicker) {
+                PDFDocumentPicker(onPDFSelected: processPDF)
             }
             .sheet(isPresented: $showingReview) {
                 if let receipt = parsedReceipt, let image = selectedImage {
@@ -248,6 +352,40 @@ struct ReceiptScannerView: View {
             }
         }
     }
+
+    private func processPDF(url: URL) {
+        isProcessing = true
+        isPDFMode = true
+        HapticManager.shared.impact(style: .medium)
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            let result = PDFReceiptProcessor.shared.extractText(from: url)
+
+            DispatchQueue.main.async {
+                isProcessing = false
+
+                switch result {
+                case .success(let text):
+                    // PDF'den metin başarıyla çıkarıldı
+                    let receipt = ReceiptParser.shared.parse(text: text)
+
+                    // Thumbnail oluştur
+                    if let thumbnail = PDFReceiptProcessor.shared.generateThumbnail(from: url) {
+                        selectedImage = thumbnail
+                    }
+
+                    parsedReceipt = receipt
+                    HapticManager.shared.success()
+                    showingReview = true
+
+                case .failure(let error):
+                    errorMessage = error.localizedDescription
+                    showingError = true
+                    HapticManager.shared.error()
+                }
+            }
+        }
+    }
 }
 
 // MARK: - Image Picker
@@ -285,6 +423,54 @@ struct ImagePicker: UIViewControllerRepresentable {
         }
 
         func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
+            parent.dismiss()
+        }
+    }
+}
+
+// MARK: - PDF Document Picker
+struct PDFDocumentPicker: UIViewControllerRepresentable {
+    @Environment(\.dismiss) var dismiss
+    var onPDFSelected: (URL) -> Void
+
+    func makeUIViewController(context: Context) -> UIDocumentPickerViewController {
+        let picker = UIDocumentPickerViewController(forOpeningContentTypes: [UTType.pdf])
+        picker.delegate = context.coordinator
+        picker.allowsMultipleSelection = false
+        return picker
+    }
+
+    func updateUIViewController(_ uiViewController: UIDocumentPickerViewController, context: Context) {}
+
+    func makeCoordinator() -> Coordinator {
+        Coordinator(self)
+    }
+
+    class Coordinator: NSObject, UIDocumentPickerDelegate {
+        let parent: PDFDocumentPicker
+
+        init(_ parent: PDFDocumentPicker) {
+            self.parent = parent
+        }
+
+        func documentPicker(_ controller: UIDocumentPickerViewController, didPickDocumentsAt urls: [URL]) {
+            if let url = urls.first {
+                // Security-scoped resource'a erişim başlat
+                guard url.startAccessingSecurityScopedResource() else {
+                    parent.dismiss()
+                    return
+                }
+
+                defer {
+                    url.stopAccessingSecurityScopedResource()
+                }
+
+                parent.onPDFSelected(url)
+            }
+            parent.dismiss()
+        }
+
+        func documentPickerWasCancelled(_ controller: UIDocumentPickerViewController) {
             parent.dismiss()
         }
     }

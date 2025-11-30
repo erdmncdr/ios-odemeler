@@ -224,9 +224,19 @@ class ReceiptParser {
         return items
     }
 
-    /// Kategori öner
+    /// Kategori öner (ML tabanlı)
     private func suggestCategory(merchantName: String?, text: String) -> TransactionCategory {
         let fullText = (merchantName ?? "") + " " + text
+
+        // ML tahminini kullan
+        let prediction = MLCategoryPredictor.shared.predictCategory(from: fullText, merchantName: merchantName)
+
+        // Yüksek güvenle tahmin varsa onu kullan
+        if prediction.confidence > 0.6 {
+            return prediction.category
+        }
+
+        // Düşük güven, fallback olarak basit keyword kontrolü
         let lowercased = fullText.lowercased()
 
         // Yemek
@@ -266,8 +276,8 @@ class ReceiptParser {
             return .entertainment
         }
 
-        // Alışveriş (varsayılan)
-        return .shopping
+        // ML tahmini döndür (fallback olarak)
+        return prediction.category
     }
 
     // MARK: - Helper Methods
