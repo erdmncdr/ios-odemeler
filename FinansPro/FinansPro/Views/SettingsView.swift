@@ -19,10 +19,15 @@ struct SettingsView: View {
     @State private var showingNotificationSettings = false
     @State private var showingDataExport = false
 
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 List {
@@ -210,6 +215,9 @@ struct SettingsView: View {
             }
             .navigationTitle("Ayarlar")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") {

@@ -10,10 +10,16 @@ import Charts
 
 struct AnalyticsView: View {
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @Environment(\.colorScheme) var colorScheme
     @Environment(\.dismiss) var dismiss
     @State private var selectedPeriod: TimePeriod = .month
     @State private var selectedChartType: ChartType = .category
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     enum TimePeriod: String, CaseIterable {
         case week = "Hafta"
@@ -30,7 +36,7 @@ struct AnalyticsView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -56,6 +62,9 @@ struct AnalyticsView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("Analiz & Grafikler")

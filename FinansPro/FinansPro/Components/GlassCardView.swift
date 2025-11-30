@@ -36,9 +36,19 @@ struct TransactionCard: View {
                     .font(Theme.headline)
                     .foregroundColor(.primary)
 
-                Text(categoryItem.name)
-                    .font(Theme.caption)
-                    .foregroundColor(.secondary)
+                HStack(spacing: 8) {
+                    Text(categoryItem.name)
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+
+                    Text("•")
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+
+                    Text(transaction.date.toShortString())
+                        .font(Theme.caption)
+                        .foregroundColor(.secondary)
+                }
 
                 if let dueDate = transaction.dueDate, !transaction.isPaid {
                     Label(dueDate.toRelativeString(), systemImage: "clock")

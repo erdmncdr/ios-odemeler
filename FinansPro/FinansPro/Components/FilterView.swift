@@ -11,6 +11,12 @@ struct FilterView: View {
     @Binding var filterOptions: FilterOptions
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     @State private var selectedDateRange: DateRange?
     @State private var selectedCategories: Set<TransactionCategory> = []
@@ -22,7 +28,7 @@ struct FilterView: View {
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -131,6 +137,9 @@ struct FilterView: View {
             }
             .navigationTitle("Filtreler")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("İptal") {

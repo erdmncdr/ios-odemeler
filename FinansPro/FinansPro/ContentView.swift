@@ -12,6 +12,12 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var showingAnalytics = false
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     enum Tab: String, CaseIterable {
         case expenses = "Giderler"
@@ -74,6 +80,9 @@ struct ContentView: View {
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .principal) {
                     Text("FinansPro")
@@ -135,6 +144,12 @@ struct ContentView: View {
 struct CustomTabBar: View {
     @Binding var selectedTab: ContentView.Tab
     @Environment(\.colorScheme) var colorScheme
+    @EnvironmentObject var appearanceManager: AppearanceManager
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     var body: some View {
         HStack(spacing: 0) {
@@ -162,8 +177,8 @@ struct CustomTabBar: View {
                             .fill(
                                 LinearGradient(
                                     colors: [
-                                        Color.white.opacity(colorScheme == .dark ? 0.15 : 0.3),
-                                        Color.white.opacity(colorScheme == .dark ? 0.05 : 0.1)
+                                        Color.white.opacity(effectiveColorScheme == .dark ? 0.15 : 0.3),
+                                        Color.white.opacity(effectiveColorScheme == .dark ? 0.05 : 0.1)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -175,8 +190,8 @@ struct CustomTabBar: View {
                             .stroke(
                                 LinearGradient(
                                     colors: [
-                                        Color.white.opacity(colorScheme == .dark ? 0.3 : 0.6),
-                                        Color.white.opacity(colorScheme == .dark ? 0.1 : 0.2)
+                                        Color.white.opacity(effectiveColorScheme == .dark ? 0.3 : 0.6),
+                                        Color.white.opacity(effectiveColorScheme == .dark ? 0.1 : 0.2)
                                     ],
                                     startPoint: .topLeading,
                                     endPoint: .bottomTrailing
@@ -185,7 +200,7 @@ struct CustomTabBar: View {
                             )
                     )
                     .shadow(
-                        color: colorScheme == .dark
+                        color: effectiveColorScheme == .dark
                             ? Color.black.opacity(0.5)
                             : Color.black.opacity(0.15),
                         radius: 20,

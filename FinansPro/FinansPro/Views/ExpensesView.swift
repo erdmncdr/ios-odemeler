@@ -213,6 +213,7 @@ struct AddTransactionView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
 
     let transactionType: TransactionType
 
@@ -227,10 +228,15 @@ struct AddTransactionView: View {
     @State private var trackInCashFlow = false // Borç/alacak için nakit akışı takibi
     @FocusState private var isAmountFocused: Bool
 
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
+
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 Form {
@@ -338,6 +344,9 @@ struct AddTransactionView: View {
             }
             .navigationTitle("Yeni \(transactionType.rawValue)")
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("İptal") {
@@ -407,12 +416,18 @@ struct TransactionDetailView: View {
     @Environment(\.dismiss) var dismiss
     @Environment(\.colorScheme) var colorScheme
     @EnvironmentObject var dataManager: DataManager
+    @EnvironmentObject var appearanceManager: AppearanceManager
     @State private var showingDeleteAlert = false
+
+    // AppearanceManager'dan gelen tema tercihini kullan
+    private var effectiveColorScheme: ColorScheme {
+        appearanceManager.colorScheme ?? colorScheme
+    }
 
     var body: some View {
         NavigationStack {
             ZStack {
-                Theme.backgroundGradient(colorScheme)
+                Theme.backgroundGradient(effectiveColorScheme)
                     .ignoresSafeArea()
 
                 ScrollView {
@@ -466,6 +481,9 @@ struct TransactionDetailView: View {
             }
             .navigationTitle(transaction.type.rawValue)
             .navigationBarTitleDisplayMode(.inline)
+            .toolbarBackground(.ultraThinMaterial, for: .navigationBar)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .toolbarColorScheme(effectiveColorScheme == .dark ? .dark : .light, for: .navigationBar)
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("Kapat") {
