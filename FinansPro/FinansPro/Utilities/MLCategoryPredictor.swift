@@ -13,11 +13,15 @@ import NaturalLanguage
 class MLCategoryPredictor {
     static let shared = MLCategoryPredictor()
 
-    private let embedding = NLEmbedding.sentenceEmbedding(for: .turkish)
+    private var embedding: NLEmbedding?
     private var categoryModel: [TransactionCategory: [String]] = [:]
     private var learningData: [(text: String, category: TransactionCategory)] = []
 
     private init() {
+        // iOS 16+ için NLEmbedding desteği
+        if #available(iOS 16.0, *) {
+            embedding = NLEmbedding.sentenceEmbedding(for: .turkish)
+        }
         loadTrainingData()
         buildModel()
     }

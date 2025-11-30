@@ -22,6 +22,7 @@ struct BatchReceiptScannerView: View {
     @Environment(\.dismiss) var dismiss
 
     @State private var selectedItems: [BatchReceiptItem] = []
+    @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var showingPhotoPicker = false
     @State private var isProcessingAll = false
     @State private var processedCount = 0
@@ -201,12 +202,11 @@ struct BatchReceiptScannerView: View {
                 }
             }
         }
-        .photosPicker(isPresented: $showingPhotoPicker, selection: Binding<[PhotosPickerItem]>(
-            get: { [] },
-            set: { newItems in
-                loadPhotos(from: newItems)
-            }
-        ), matching: .images)
+        .photosPicker(isPresented: $showingPhotoPicker, selection: $selectedPhotos, matching: .images)
+        .onChange(of: selectedPhotos) { _, newItems in
+            loadPhotos(from: newItems)
+            selectedPhotos = [] // Reset after loading
+        }
         .alert("Fişler Kaydedilsin mi?", isPresented: $showingSaveConfirmation) {
             Button("İptal", role: .cancel) {}
             Button("Kaydet") {
