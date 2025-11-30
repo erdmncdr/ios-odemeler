@@ -24,6 +24,7 @@ struct ReceiptScannerView: View {
     @State private var errorMessage: String?
     @State private var showingError = false
     @State private var isPDFMode = false
+    @State private var shouldAutoScan = false
 
     var body: some View {
         NavigationStack {
@@ -57,12 +58,12 @@ struct ReceiptScannerView: View {
 
                     Spacer()
 
-                    // Seçilen fotoğraf önizlemesi
+                    // Seçilen fotoğraf önizlemesi ve tarama durumu
                     if let image = selectedImage {
                         VStack(spacing: 16) {
-                            Text("Seçilen Fotoğraf")
+                            Text(isProcessing ? "Taranıyor..." : "Fotoğraf Seçildi")
                                 .font(Theme.headline)
-                                .foregroundColor(.secondary)
+                                .foregroundColor(isProcessing ? .blue : .secondary)
 
                             Image(uiImage: image)
                                 .resizable()
@@ -75,33 +76,18 @@ struct ReceiptScannerView: View {
                             if isProcessing {
                                 VStack(spacing: 12) {
                                     ProgressView()
-                                        .scaleEffect(1.2)
+                                        .scaleEffect(1.5)
+                                        .tint(.blue)
 
                                     Text("Fiş okunuyor...")
                                         .font(Theme.callout)
                                         .foregroundColor(.secondary)
+
+                                    Text("Türkçe karakterler tanınıyor...")
+                                        .font(Theme.caption)
+                                        .foregroundColor(.secondary)
                                 }
                                 .padding()
-                            } else {
-                                Button(action: processImage) {
-                                    HStack {
-                                        Image(systemName: "sparkles")
-                                        Text("Fişi Oku")
-                                            .fontWeight(.semibold)
-                                    }
-                                    .foregroundColor(.white)
-                                    .frame(maxWidth: .infinity)
-                                    .padding()
-                                    .background(
-                                        LinearGradient(
-                                            colors: [.blue, .purple],
-                                            startPoint: .leading,
-                                            endPoint: .trailing
-                                        )
-                                    )
-                                    .cornerRadius(16)
-                                }
-                                .padding(.horizontal)
                             }
                         }
                     }
@@ -110,178 +96,81 @@ struct ReceiptScannerView: View {
 
                     // Butonlar
                     if selectedImage == nil {
-                        VStack(spacing: 16) {
-                            // Kamera butonu
+                        VStack(spacing: 20) {
+                            // Ana buton - Fotoğraf Çek
                             Button(action: {
                                 HapticManager.shared.impact(style: .medium)
+                                shouldAutoScan = true
                                 showingCamera = true
                             }) {
-                                HStack {
+                                VStack(spacing: 12) {
                                     Image(systemName: "camera.fill")
-                                        .font(.system(size: 24))
+                                        .font(.system(size: 48))
 
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Kamera ile Çek")
-                                            .font(Theme.headline)
-                                            .fontWeight(.semibold)
-
-                                        Text("Yeni fiş fotoğrafı çek")
-                                            .font(Theme.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
+                                    Text("Fotoğraf Çek")
+                                        .font(Theme.title3)
+                                        .fontWeight(.semibold)
                                 }
-                                .foregroundColor(.primary)
-                                .padding()
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(16)
-                            }
-
-                            // Galeri butonu
-                            Button(action: {
-                                HapticManager.shared.impact(style: .medium)
-                                showingImagePicker = true
-                            }) {
-                                HStack {
-                                    Image(systemName: "photo.on.rectangle.angled")
-                                        .font(.system(size: 24))
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Galeriden Seç")
-                                            .font(Theme.headline)
-                                            .fontWeight(.semibold)
-
-                                        Text("Mevcut fotoğrafları kullan")
-                                            .font(Theme.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
-                                }
-                                .foregroundColor(.primary)
-                                .padding()
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(16)
-                            }
-
-                            // PDF butonu
-                            Button(action: {
-                                HapticManager.shared.impact(style: .medium)
-                                showingPDFPicker = true
-                            }) {
-                                HStack {
-                                    Image(systemName: "doc.text.fill")
-                                        .font(.system(size: 24))
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("PDF Fatura Seç")
-                                            .font(Theme.headline)
-                                            .fontWeight(.semibold)
-
-                                        Text("PDF dosyasından bilgi oku")
-                                            .font(Theme.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
-                                }
-                                .foregroundColor(.primary)
-                                .padding()
-                                .background(.ultraThinMaterial)
-                                .cornerRadius(16)
-                            }
-
-                            // Ayraç
-                            HStack {
-                                Rectangle()
-                                    .fill(Color.secondary.opacity(0.3))
-                                    .frame(height: 1)
-
-                                Text("YA DA")
-                                    .font(Theme.caption)
-                                    .foregroundColor(.secondary)
-                                    .padding(.horizontal, 8)
-
-                                Rectangle()
-                                    .fill(Color.secondary.opacity(0.3))
-                                    .frame(height: 1)
-                            }
-                            .padding(.vertical, 8)
-
-                            // Toplu tarama butonu
-                            NavigationLink(destination: BatchReceiptScannerView()) {
-                                HStack {
-                                    Image(systemName: "square.stack.3d.up.fill")
-                                        .font(.system(size: 24))
-                                        .foregroundStyle(
-                                            LinearGradient(
-                                                colors: [.orange, .pink],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            )
-                                        )
-
-                                    VStack(alignment: .leading, spacing: 4) {
-                                        Text("Toplu Tarama")
-                                            .font(Theme.headline)
-                                            .fontWeight(.semibold)
-
-                                        Text("Birden fazla fiş/fatura tara")
-                                            .font(Theme.caption)
-                                            .foregroundColor(.secondary)
-                                    }
-
-                                    Spacer()
-
-                                    Image(systemName: "chevron.right")
-                                        .foregroundColor(.secondary)
-                                }
-                                .foregroundColor(.primary)
-                                .padding()
-                                .background(
-                                    LinearGradient(
-                                        colors: [.orange.opacity(0.1), .pink.opacity(0.1)],
-                                        startPoint: .topLeading,
-                                        endPoint: .bottomTrailing
-                                    )
-                                )
-                                .cornerRadius(16)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .stroke(
-                                            LinearGradient(
-                                                colors: [.orange, .pink],
-                                                startPoint: .topLeading,
-                                                endPoint: .bottomTrailing
-                                            ),
-                                            lineWidth: 2
-                                        )
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 30)
+                                .background(Theme.primaryGradient)
+                                .cornerRadius(20)
+                                .shadow(
+                                    color: Color.blue.opacity(0.3),
+                                    radius: 15,
+                                    x: 0,
+                                    y: 8
                                 )
                             }
+                            .padding(.horizontal)
+
+                            // Alt butonlar - Dosya Yükle ve Galeriden Seç
+                            HStack(spacing: 12) {
+                                // Dosya Yükle butonu
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    showingPDFPicker = true
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "doc.fill")
+                                            .font(.system(size: 28))
+
+                                        Text("Dosya Yükle")
+                                            .font(Theme.footnote)
+                                            .fontWeight(.semibold)
+                                    }
+                                    .foregroundColor(.primary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 20)
+                                    .background(.ultraThinMaterial)
+                                    .cornerRadius(16)
+                                }
+
+                                // Galeriden Seç butonu
+                                Button(action: {
+                                    HapticManager.shared.impact(style: .medium)
+                                    shouldAutoScan = true
+                                    showingImagePicker = true
+                                }) {
+                                    VStack(spacing: 8) {
+                                        Image(systemName: "photo.fill")
+                                            .font(.system(size: 28))
+
+                                        Text("Fotoğraf Yükle")
+                                            .font(Theme.footnote)
+                                            .fontWeight(.semibold)
+                                    }
+                                    .foregroundColor(.primary)
+                                    .frame(maxWidth: .infinity)
+                                    .padding(.vertical, 20)
+                                    .background(.ultraThinMaterial)
+                                    .cornerRadius(16)
+                                }
+                            }
+                            .padding(.horizontal)
                         }
-                        .padding(.horizontal)
                         .padding(.bottom, 40)
-                    } else {
-                        Button(action: {
-                            selectedImage = nil
-                            parsedReceipt = nil
-                        }) {
-                            Text("Fotoğrafı Değiştir")
-                                .font(Theme.callout)
-                                .foregroundColor(.blue)
-                                .padding()
-                        }
-                        .padding(.bottom, 20)
                     }
                 }
             }
@@ -298,6 +187,15 @@ struct ReceiptScannerView: View {
             }
             .sheet(isPresented: $showingCamera) {
                 ImagePicker(image: $selectedImage, sourceType: .camera)
+            }
+            .onChange(of: selectedImage) { newImage in
+                // Fotoğraf seçildiğinde otomatik tarama başlat
+                if newImage != nil && shouldAutoScan && !isPDFMode {
+                    shouldAutoScan = false
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                        processImage()
+                    }
+                }
             }
             .sheet(isPresented: $showingPDFPicker) {
                 PDFDocumentPicker(onPDFSelected: processPDF)
