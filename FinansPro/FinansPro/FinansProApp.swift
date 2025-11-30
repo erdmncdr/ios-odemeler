@@ -55,9 +55,9 @@ struct FinansProApp: App {
                 } else {
                     // Onboarding ekranı
                     OnboardingView(isOnboardingComplete: $hasCompletedOnboarding)
-                        .transition(.opacity)
                 }
             }
+            .animation(.easeInOut(duration: 0.3), value: hasCompletedOnboarding)
             .onChange(of: scenePhase) { _, newPhase in
                 switch newPhase {
                 case .background:
