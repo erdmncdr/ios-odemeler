@@ -77,32 +77,88 @@ class ReceiptParser {
         return nil
     }
 
-    /// Toplam tutarı bul
+    /// Toplam tutarı bul - Daha stabil ve odaklanmış algoritma
     private func extractTotalAmount(from lines: [String]) -> Double? {
-        var amounts: [Double] = []
+        // Öncelik sırasına göre toplam tutar anahtar kelimeleri
+        let totalKeywords = [
+            "genel toplam",
+            "ödenecek tutar",
+            "ödenecek toplam",
+            "toplam tutar",
+            "toplam",
+            "total",
+            "ödenecek",
+            "tutar",
+            "grand total",
+            "net tutar",
+            "net toplam"
+        ]
 
+        // KDV hariç tutulacak kelimeler (bunlar genelde ara toplam)
+        let excludeKeywords = [
+            "ara toplam",
+            "subtotal",
+            "kdv hariç",
+            "kdv dahil",
+            "indirim",
+            "discount"
+        ]
+
+        var priorityAmounts: [(priority: Int, amount: Double)] = []
+
+        for (lineIndex, line) in lines.enumerated() {
+            let lowercasedLine = line.lowercased()
+
+            // Hariç tutulacak satırları atla
+            var shouldExclude = false
+            for excludeWord in excludeKeywords {
+                if lowercasedLine.contains(excludeWord) {
+                    shouldExclude = true
+                    break
+                }
+            }
+            if shouldExclude { continue }
+
+            // Öncelik sırasına göre kontrol et
+            for (priority, keyword) in totalKeywords.enumerated() {
+                if lowercasedLine.contains(keyword) {
+                    let lineAmounts = extractAmounts(from: line)
+                    for amount in lineAmounts {
+                        // Çok küçük tutarları (0.50 TL altı) ve çok büyük tutarları (1M üstü) filtrele
+                        if amount >= 0.50 && amount <= 1_000_000 {
+                            priorityAmounts.append((priority: priority, amount: amount))
+                        }
+                    }
+                    break // İlk eşleşen keyword'ü kullan
+                }
+            }
+        }
+
+        // En yüksek önceliğe sahip tutarı döndür
+        if !priorityAmounts.isEmpty {
+            priorityAmounts.sort { $0.priority < $1.priority || ($0.priority == $1.priority && $0.amount > $1.amount) }
+            return priorityAmounts.first?.amount
+        }
+
+        // Hiçbir anahtar kelime bulunamadıysa, tüm satırlardan en büyük makul tutarı al
+        var allAmounts: [Double] = []
         for line in lines {
-            // "TOPLAM", "TOTAL", "TUTAR" gibi kelimeleri ara
-            if line.lowercased().contains("toplam") ||
-               line.lowercased().contains("total") ||
-               line.lowercased().contains("ödenecek") {
-
-                // Bu satırdan tutarları çıkar
-                let lineAmounts = extractAmounts(from: line)
-                amounts.append(contentsOf: lineAmounts)
+            let lineAmounts = extractAmounts(from: line)
+            for amount in lineAmounts {
+                // Makul aralıkta olan tutarları al
+                if amount >= 0.50 && amount <= 1_000_000 {
+                    allAmounts.append(amount)
+                }
             }
         }
 
-        // Toplam bulunamadıysa, tüm satırlardan en büyük tutarı al
-        if amounts.isEmpty {
-            for line in lines {
-                let lineAmounts = extractAmounts(from: line)
-                amounts.append(contentsOf: lineAmounts)
-            }
+        // En büyük 3 tutardan ortancayı al (aşırı uç değerlerden kaçınmak için)
+        if allAmounts.count >= 3 {
+            allAmounts.sort(by: >)
+            return allAmounts[1]  // İkinci en büyük tutar (genelde en güvenilir)
+        } else {
+            return allAmounts.max()
         }
-
-        // En büyük tutarı döndür (genelde toplam tutar en büyük olanıdır)
-        return amounts.max()
     }
 
     /// Satırdan sayısal tutarları çıkar
